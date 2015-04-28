@@ -9,12 +9,13 @@ As it is shown in the examples, the performance is very close to basic C++ imple
 As oposed to Haskell, this library does not do:
 * Pattern matching
 * Type checking (apart from the standard C++ huge template errors)
-* Lazy evaluation of everything (we
+* Lazy evaluation of everything (just of the lists that are returned by our implemented functions)
 
 ## Compiling the examples
 There are several examples:
 * [fun-dot](https://github.com/adolfomunoz/qdt/blob/master/examples/fun-dot.cc) computes the dot product of two vectors represented by very large `std::list<double>`. It compares the performance of three different implementations of such dot product, including a basic C++ loop, C++ function based on the 'fun' library and a pure `fun`-generated function.
-* [fun-norm](https://github.com/adolfomunoz/qdt/blob/master/examples/fun-dot.cc) computes the *i-esm* norm
+* [fun-norm](https://github.com/adolfomunoz/qdt/blob/master/examples/fun-norm.cc) computes the *i-esm* norm.
+* [fun-primes](https://github.com/adolfomunoz/qdt/blob/master/examples/fun-primes.cc) creates an infinite list of prime numbers and prints part of it using different strategies (`take` and `takeWhile`).
 
 You can clone the repository and compile the example (git + gcc) as follows:
 ```
