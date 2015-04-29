@@ -9,7 +9,7 @@
 
 template<typename L1, typename L2>
 auto dot_fe(const L1& l1, const L2& l2)
-{	return fun::sum(fun::zipWith_([] (auto o1, auto o2) { return o1*o2; },l1,l2));	}
+{	return fun::sum(fun::zipWith(std::multiplies<double>(),l1,l2));	}
 
 template<typename L1, typename L2>
 double dot_cp(const L1& l1, const L2& l2)
@@ -53,8 +53,7 @@ int main(int argc, char** argv)
 	std::cout<<"As fun definition     -> "<<sol<<" - "<<std::setw(10)<<std::setprecision(6)<<(1.e3*duration.count())<<"ms ("
 		<<std::setw(7)<<std::setprecision(5)<<(100.0*duration.count()/base_duration)<<"%)"<<std::endl; 
 
-	auto dot_fi = fun::compose(fun::sum,
-		        fun::curry(fun::zipWith, [] (auto o1, auto o2) { return o1*o2; }));
+	auto dot_fi = fun::compose(fun::sum, fun::curry(fun::zipWith, std::multiplies<double>()));
   	start = std::chrono::system_clock::now();
 	sol = dot_fi(l1, l2);
 	duration = std::chrono::system_clock::now() - start;
