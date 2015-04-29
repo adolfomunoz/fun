@@ -40,7 +40,20 @@ auto primes = fun::filter(
 			fun::range(2,n-1)); },
 	fun::range(1));
 ```
-which is an infinite list of prime numbers. Lazy evaluation enables such stuff.
+which is an infinite list of prime numbers, or
+```
+auto dot = fun::compose(fun::sum, fun::curry(fun::zipWith, std::multiplies<double>()));
+```
+which is a function that calculates the dot product of two vectors (represented as lists or generally speaking anything iterable).
+
+## Comparison with other functional libraries
+
+There are other open source libraries that focus on functional programming:
+* [FTL](https://github.com/beark/ftl) - Awesome library that accounts fur sum types, pattern matching and monad-like structures (none of those are done by our library). As this `fun` library, it is also able to curry functions.
+* [fpcpp](https://github.com/jdduke/fpcpp) - Another awesome library. It is actually very similar to `fun`, and it is more developed. It is pre-C++14 so it has required a huge amount of extra work.
+* [Boost Phoenix](http://www.boost.org/doc/libs/1_58_0/libs/phoenix/doc/html/) - A very stable functional programming library. It enables lazy function and value evaluation, and pre-C++11 lambda functions. It is rather extensive. I frankly did not find its syntax very appealing, but it seems very interesting to explore and research because it included functional programming in a pre-C++11 compiler.
+
+Note that I have not tried any of these libraries extensively, so I might be wrong about something. Please let me know if this is the case, or if I have missed any important library.
 
 ## Disclaimer
 This code is released under the [GNU Public License V3 licence](http://www.gnu.org/licenses/gpl-3.0-standalone.html). In practice, if you use this code I'd like the following to happen:
