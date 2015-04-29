@@ -23,7 +23,6 @@ double dot_cp(const L1& l1, const L2& l2)
 	return sol;
 }
 
-
 int main(int argc, char** argv)
 {
 	std::list<double> l1;
