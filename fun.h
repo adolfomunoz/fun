@@ -14,10 +14,13 @@
 #include "list/generate.h"
 #include "list/iterate.h"
 #include "list/repeat.h"
+#include "list/random.h"
+#include "list/show.h"
 
-#include "function/curry.h"
-#include "function/compose.h"
 #include "function/flip.h"
+#include "function/function.h"
+#include "function/section.h"
+#include "function/misc.h"
 
 
 #include "util/list_of_self.h"

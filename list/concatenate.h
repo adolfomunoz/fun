@@ -74,7 +74,8 @@ auto concatenate_(List1&& list1, List2&& list2, Ls&&... ls)
 /**************************************
  * fun::API                           *
  **************************************/
-auto concatenate = [] (auto... params) { return concatenate_(params...); };
+//auto concatenate = [] (auto&&... params) { return concatenate_(params...); };
+auto concatenate = [] (auto&& l1, auto&& l2, auto&&... params) { return concatenate_(l1, l2, params...); };
 
 
 }; //namespace fun

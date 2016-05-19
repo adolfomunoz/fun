@@ -3,12 +3,12 @@
 #include <iomanip>
 #include <functional>
 
+using fun::_;
+
 int main(int argc, char** argv)
 {
 	auto primes = fun::filter(
-			[] (unsigned long n) { return !fun::any(
-				fun::compose(fun::curry(std::equal_to<long>(),0), fun::curry(std::modulus<long>(),n)),
-					fun::range(2,n-1)); },
+			[] (unsigned long n) { return !fun::any((_==0) & (n % _), fun::range(2,1+int(sqrt(n)))); },
 			fun::range(1));
 
 	for (auto number : fun::take(100, primes)) std::cout<<std::setw(7)<<number<<" ";

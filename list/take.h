@@ -2,6 +2,7 @@
 #define _FUNCTIONAL_LIST_TAKE_H_
 
 #include "../iterator/const_iterator.h"
+#include "../function/function.h"
 #include <memory>
 
 namespace fun {
@@ -47,7 +48,7 @@ auto take_(unsigned long n, List&& l)
 /**************************************
  * fun::API                           *
  **************************************/
-auto take   = [] (unsigned long n, auto&& l) { return take_(n, l);   };
+auto take   = function<2>([] (unsigned long n, auto&& l) { return take_(n, l);   });
 
 };
 

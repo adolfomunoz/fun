@@ -3,6 +3,7 @@
 
 #include <utility>
 #include <memory>
+#include "../function/function.h"
 
 namespace fun {
 
@@ -38,9 +39,9 @@ auto rest_(List&& l)
 
 template<typename List>
 unsigned int length_(const List& l)
-{   unsigned int size = 0;
-    typename List::const_iterator i;
-    for (i=l.begin();i!=l.end();++i) ++size;
+{   
+    unsigned int size = 0;
+    for (auto i = l.begin(); i!=l.end();++i) ++size; 
     return size;
 }
 
@@ -59,11 +60,11 @@ bool elem_(const typename List::value_type& x, const List& l)
 /**************************************
  * fun::API                           *
  **************************************/
-auto head   = [] (auto&& l)           { return head_(l);   };
-auto rest   = [] (auto&& l)           { return rest_(l);   };
-auto length = [] (auto&& l)           { return length_(l); };
-auto elem   = [] (auto&& x, auto&& l) { return elem_(x,l); };
-auto null   = [] (auto&& l)           { return null_(l);   };
+auto head   = function<1>([] (auto&& l)           { return head_(l);   });
+auto rest   = function<1>([] (auto&& l)           { return rest_(l);   });
+auto length = function<1>([] (auto&& l)           { return length_(l); });
+auto elem   = function<2>([] (auto&& x, auto&& l) { return elem_(x,l); });
+auto null   = function<1>([] (auto&& l)           { return null_(l);   });
 
 };
 

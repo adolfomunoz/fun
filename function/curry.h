@@ -22,7 +22,8 @@ public:
 };
 
 /**************************************
- * fun::API                           *
+ * fun::API  
+ * Do not use, it is better to use the "function.h" API instead *
  **************************************/
 
 template<typename F, typename Arg>

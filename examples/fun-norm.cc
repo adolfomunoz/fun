@@ -1,4 +1,5 @@
 #include "../fun.h"
+#include <string.h>
 #include <chrono>
 #include <iostream>
 #include <iomanip>
@@ -29,13 +30,18 @@ double norm_cp(const L& l, double e)
 int main(int argc, char** argv)
 {
 	std::list<double> l;
-	const auto size = 100000000;
-	const double  e = 4.0;
+	unsigned long size = 100000000;
+	double  e = 4.0;
+
+	for (int i = 0;i<argc - 1;++i) {
+		if (strcmp("-size",argv[i])==0) size=atol(argv[++i]);
+		else if (strcmp("-e",argv[i])==0) e=atof(argv[++i]);
+	}
 
 	for (unsigned int i = 0; i<size; ++i)
 		l.push_back(1.0); 
 
-	std::cerr<<"Solution = "<<std::pow(size, 1.0/e)<<std::endl;
+	std::cerr<<"E = "<<e<<" - Size = "<<size<<" - Solution = "<<std::pow(size, 1.0/e)<<std::endl;
 
 	std::chrono::time_point<std::chrono::system_clock> start;
 	double sol;
@@ -53,4 +59,13 @@ int main(int argc, char** argv)
 	duration = std::chrono::system_clock::now() - start;
 	std::cout<<"As fun definition     -> "<<sol<<" - "<<std::setw(10)<<std::setprecision(6)<<(1.e3*duration.count())<<"ms ("
 		<<std::setw(7)<<std::setprecision(5)<<(100.0*duration.count()/base_duration)<<"%)"<<std::endl; 
+
+	auto pow = fun::function<2>([] (double o1, double o2) { return std::pow(o1,o2); });
+	auto norm_fi = fun::flip(pow)(1.0/e) & fun::sum & fun::map(fun::flip(pow)(e));
+	start = std::chrono::system_clock::now();
+	sol = norm_fi(l);
+	duration = std::chrono::system_clock::now() - start;
+	std::cout<<"As fun awesome        -> "<<sol<<" - "<<std::setw(10)<<std::setprecision(6)<<(1.e3*duration.count())<<"ms ("
+		<<std::setw(7)<<std::setprecision(5)<<(100.0*duration.count()/base_duration)<<"%)"<<std::endl; 
+
 }

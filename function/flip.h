@@ -1,9 +1,10 @@
 #ifndef _FUNCTIONAL_FLIP_H_
 #define _FUNCTIONAL_FLIP_H_
 
-#include <utility>
+#include "function.h"
 
 namespace fun {
+
 
 template<typename F>
 class Flip
@@ -18,13 +19,15 @@ public:
 	{	return f(std::forward<Arg2>(arg2),std::forward<Arg1>(arg1));	}
 };
 
+template<typename F>
+auto flip_(F&& f) 
+{	return function<2>(Flip<typename std::remove_reference<F>::type>(std::forward<F>(f)));   } 
+
 /**************************************
  * fun::API                           *
  **************************************/
 
-template<typename F>
-auto flip(F&& f)
-{	return Flip<typename std::remove_reference<F>::type>(std::forward<F>(f));   } 
+auto flip = function<1>([] (auto&& f) { return flip_(f); });
 
 }; //namespace fun
 

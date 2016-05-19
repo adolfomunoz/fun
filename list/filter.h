@@ -2,6 +2,7 @@
 #define _FUNCTIONAL_FILTER_H_
 
 #include "../iterator/const_iterator.h"
+#include "../function/function.h"
 #include <utility>
 #include <type_traits>
 
@@ -59,7 +60,7 @@ auto filter_(Predicate&& predicate, List&& list)
 /**************************************
  * fun::API                           *
  **************************************/
-auto filter = [] (auto&& p1, auto&& p2) { return filter_(p1, p2); };
+auto filter = function<2>([] (auto&& p1, auto&& p2) { return filter_(p1, p2); });
 
 
 }; //namespace fun
