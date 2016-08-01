@@ -22,6 +22,12 @@ auto acos  = fun::function<1>([] (const auto& f) { return std::acos(f); });
 auto atan  = fun::function<1>([] (const auto& f) { return std::atan(f); });
 auto negate = (-1*_);
 auto signum = fun::function<1>([] (auto f) { return decltype(f)((f<0)?-1:((f>0)?1:0)); });
+auto pow   = fun::function<2>([] (const auto& b, const auto& e) { return std::pow(b,e); });
+auto fst   = fun::function<1>([] (const auto& pair) { return std::get<0>(pair); });
+auto snd   = fun::function<1>([] (const auto& pair) { return std::get<1>(pair); });
+auto constant = fun::function<2>([] (const auto& c, const auto& dummy) { return c; });
+auto max   = fun::function<2>([] (const auto& a, const auto& b) { return (a>b)?a:b; });
+auto min   = fun::function<2>([] (const auto& a, const auto& b) { return (a<b)?a:b; });
 
 }; //namespace fun
 

@@ -53,10 +53,10 @@ public:
 	 * Composition operator
 	 **/
 	template<unsigned int NThat, typename FThat>
-	auto operator&(Function<NThat, FThat>&& that) const 
+	auto operator*(Function<NThat, FThat>&& that) const 
 	{	return function<NThat>(compose(this->f, std::forward<const FThat>(that.f_())));    }
 	template<unsigned int NThat, typename FThat>
-	auto operator&(const Function<NThat, FThat>& that) const 
+	auto operator*(const Function<NThat, FThat>& that) const 
 	{	return function<NThat>(compose(this->f, that.f_()));    }
 
 };

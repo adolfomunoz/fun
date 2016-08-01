@@ -20,7 +20,7 @@ There are several examples:
 * [fun-primes](https://github.com/adolfomunoz/fun/blob/master/examples/fun-primes.cc) creates an infinite list of prime numbers and prints part of it using different strategies (`take` and `takeWhile`).
 * Go to the [examples](https://github.com/adolfomunoz/fun/blob/master/examples) directory to find more.
 
-You can clone the repository and compile the example (git + gcc) as follows:
+You can clone the repository and compile some of the examples (git + gcc) as follows:
 ```
 git clone https://github.com/adolfomunoz/fun.git
 g++ --std=c++14 -O3 fun/examples/fun-dot.cc    -o fun-dot
@@ -40,7 +40,7 @@ The library is thought as a Haskell clone, focusing on higher order list functio
 It enables awesome one-liners such as
 ```
 auto primes = fun::filter(
-	[] (unsigned long n) { return !fun::any((_==0) & (n % _), fun::range(2,1+int(sqrt(n)))); },
+	[] (unsigned long n) { return !fun::any((_==0) * (n % _), fun::range(2,1+int(sqrt(n)))); },
 	fun::range(1));
 ```
 which is an infinite list of prime numbers, or
@@ -53,6 +53,7 @@ which is a function that calculates the dot product of two vectors (represented 
 The documentation, sadly, is a work in progress. As time passes the [doc](https://github.com/adolfomunoz/fun/blob/master/doc) folder will be filled.
 
 Right now you can find information and examples of:
+* [Functions](https://github.com/adolfomunoz/fun/blob/master/doc/functions.md): ways of generating new functions, such as sections, currying, function composition snf `flip`
 * [Higher order list functions](https://github.com/adolfomunoz/fun/blob/master/doc/higher_order.md), such as `map`, `filter` or `zipWith`
 
 ## Comparison with other functional libraries

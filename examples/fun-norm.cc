@@ -60,8 +60,7 @@ int main(int argc, char** argv)
 	std::cout<<"As fun definition     -> "<<sol<<" - "<<std::setw(10)<<std::setprecision(6)<<(1.e3*duration.count())<<"ms ("
 		<<std::setw(7)<<std::setprecision(5)<<(100.0*duration.count()/base_duration)<<"%)"<<std::endl; 
 
-	auto pow = fun::function<2>([] (double o1, double o2) { return std::pow(o1,o2); });
-	auto norm_fi = fun::flip(pow)(1.0/e) & fun::sum & fun::map(fun::flip(pow)(e));
+	auto norm_fi = fun::flip(fun::pow)(1.0/e) * fun::sum * fun::map(fun::flip(fun::pow)(e));
 	start = std::chrono::system_clock::now();
 	sol = norm_fi(l);
 	duration = std::chrono::system_clock::now() - start;

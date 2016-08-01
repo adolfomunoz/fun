@@ -3,6 +3,7 @@
 
 #include "item.h"
 #include "../function/function.h"
+#include "../function/misc.h"
 #include "../function/section.h"
 #include "../list-core/forward-list.h"
 #include "../list-core/cast.h"
@@ -125,8 +126,11 @@ auto foldr   = function<3>([] (auto&& f, auto&& e, const auto& list) { return fo
 auto foldr1  = function<2>([] (auto&& f, const auto& list)           { return foldr1_(f,list);                 });
 auto sum     = function<1>([] (const auto& list)		     { return foldl_(_+_, (typename std::remove_reference<decltype(list)>::type::value_type)(0), list); });	
 auto product = function<1>([] (const auto& list)	   	     { return foldl_(_*_, (typename std::remove_reference<decltype(list)>::type::value_type)(1), list); });	
+auto concat  = function<1>([] (const auto& list)		     { return foldl1(_+_, list); });	
 auto andl    = function<1>([] (const auto& list)		     { return andl_(list); });
 auto orl     = function<1>([] (const auto& list)		     { return orl_(list);  });
+auto maximum = foldl1(max); 
+auto minimum = foldl1(min);
     
 };
 

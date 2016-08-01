@@ -10,7 +10,8 @@
 namespace fun {
 
 template<typename VT, typename RandomEngine = std::mt19937, bool is_integral = std::is_integral<VT>::value>
-class RandomSequence
+class RandomSequence : public ForwardListImpl<RandomSequence<VT, RandomEngine, is_integral>,VT>
+
 {
 public:
 	using seed_type = typename RandomEngine::result_type;
@@ -24,29 +25,26 @@ public:
 
 	using value_type = VT;
 
-	class const_iterator : public ConstIteratorFacade<const_iterator>
+	class const_iterator_local 
 	{
-		friend class RandomSequence<VT>;
 		RandomEngine random;
 		std::uniform_real_distribution<VT> sample;	
-	        typename RandomSequence<VT>::value_type value;
-
-		const_iterator(const std::tuple<VT,VT>& range, seed_type seed) : 
-			random(seed), sample(std::get<0>(range),std::get<1>(range)), value(sample(random)) { }
-
-		const_iterator() { }
+	        VT value;
 	public:
 		void inc() { value = sample(random); }
-		bool equals(const const_iterator& that) const { return false; }
-		const typename RandomSequence<VT>::value_type operator*() const { return value; } 		
+		VT get() const { return value; }
+		bool equals(const const_iterator_local& that) const noexcept { return false; }
+		const_iterator_local(const std::tuple<VT,VT>& range, seed_type seed) : 
+			random(seed), sample(std::get<0>(range),std::get<1>(range)), value(sample(random)) { }
+		const_iterator_local() { }
 	};
 
-	const_iterator begin() const { return const_iterator(range, seed);  }
-	const_iterator end()   const { return const_iterator(); }
+	const_iterator_local begin_local() const { return const_iterator_local(range, seed);  }
+	const_iterator_local end_local()   const { return const_iterator_local(); }
 };
 
 template<typename VT, typename RandomEngine>
-class RandomSequence<VT, RandomEngine, true>
+class RandomSequence<VT, RandomEngine, true> : public ForwardListImpl<RandomSequence<VT, RandomEngine, true>,VT>
 {
 public:
 	using seed_type = typename RandomEngine::result_type;
@@ -60,25 +58,23 @@ public:
 
 	using value_type = VT;
 
-	class const_iterator : public ConstIteratorFacade<const_iterator>
+	class const_iterator_local
 	{
-		friend class RandomSequence<VT>;
 		RandomEngine random;
 		std::uniform_int_distribution<VT> sample;	
-	        typename RandomSequence<VT>::value_type value;
+	        VT value;
 
-		const_iterator(const std::tuple<VT,VT>& range, seed_type seed) : 
-			random(seed), sample(std::get<0>(range),std::get<1>(range)), value(sample(random)) { }
-
-		const_iterator() { }
 	public:
 		void inc() { value = sample(random); }
-		bool equals(const const_iterator& that) const { return false; }
-		const typename RandomSequence<VT>::value_type operator*() const { return value; } 		
+		VT get() const { return value; } 		
+		bool equals(const const_iterator_local& that) const { return false; }
+		const_iterator_local(const std::tuple<VT,VT>& range, seed_type seed) : 
+			random(seed), sample(std::get<0>(range),std::get<1>(range)), value(sample(random)) { }
+		const_iterator_local() { }
 	};
 
-	const_iterator begin() const { return const_iterator(range, seed);  }
-	const_iterator end()   const { return const_iterator(); }
+	const_iterator_local begin_local() const { return const_iterator_local(range, seed);  }
+	const_iterator_local end_local()   const { return const_iterator_local(); }
 };
 
 using random_seed_type = std::mt19937::result_type; 

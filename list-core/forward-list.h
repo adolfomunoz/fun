@@ -174,6 +174,7 @@ protected:
 	{	return std::make_unique<L>(static_cast<const L&>(*this));    }
 };
 
+
 template<typename L, typename T>
 std::ostream& operator<<(std::ostream& os, const ForwardListImpl<L,T>& list) {
 	os<<"[";

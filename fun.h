@@ -5,8 +5,9 @@
 #include "list/comprehension.h"
 #include "list/fold.h"
 #include "list/concatenate.h"
-#include "list/concat.h"
+//#include "list/concat.h"
 #include "list/extra.h"
+#include "list/explore.h"
 #include "list/range.h"
 #include "list/take.h"
 #include "list/takewhile.h"
@@ -27,4 +28,4 @@
 #include "util/to_list.h"
 #include "util/to_vector.h"
 
-
+#include "list-core/list.h"
