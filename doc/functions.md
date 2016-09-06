@@ -45,9 +45,9 @@ else std::cout<<"71 is not multiple of 3"<<std::endl;
 
 Note that function composition only works for functions defined within the `fun` library. For C++11 lambda functions, or any other function, you should turn them into `fun` functions as explained below.
 
-## Currying
+## Currying and partial application
 
-Currying is the process of transforming a function that takes multiple arguments into a function that takes just a single argument and returns another function if any arguments are still needed. As in Haskell, all functions in `fun` are curried, in the sense that they can be considered as having a single argument and returning a function (or value, if the original function had a single parameter). 
+Currying is the process of transforming a function that takes multiple arguments into a function that takes just a single argument and returns another function if any arguments are still needed. As in Haskell, all functions in `fun` are curried, in the sense that they can be considered as having a single argument and returning a function (or value, if the original function had a single parameter). This allows partial application of parameters. 
 
 The first example is with the `pow` function (which is the `fun` version of the standard C++ `pow` function).
 
@@ -65,7 +65,7 @@ std::cout<<power_of_two(8)<<std::endl;
 
 ``` 
 
-In Haskell, currying is a basic mechanism of the language, and as such there are functions that only make sense with such feature. For instance, Haskell's `const` function takes two parameters and always returns the first one. Such definition seems unneeded, but with currying, it is actually a generator of constant functions.
+In Haskell, currying is a basic mechanism of the language, and as such there are functions that only make sense with such feature. For instance, Haskell's `const` function takes two parameters and always returns the first one. Such definition seems unneeded, but with partial application, it is actually a generator of constant functions.
 
 As `const` is a C++ reserved keyworkd, in `fun` such function is named `constant`, as in the following example:
 
@@ -142,4 +142,25 @@ std::cout<<gamma(1.2f)<<std::endl;
 ```
 
 Note that this enables, in practice, to include new functions with side effects (pointer editing, for instance). That is definitelly not advised. It seems quite weird to use a library for functional programming and then include a side effect that destroys the foundation of functional programming. 
+
+## Currying - returning functions
+
+As stated before, all functions in `fun` are curried, in the sense that multiple argument functions can be considered as single argument functions returning a new function. This enables partial application. 
+
+Furthermore, when defining new functions it is also possible to return another function. Instead of cumbersome notations with multiple opening and closing parameters, `fun` can interpret functions that return functions as functions with extra parameters. This is, coceptually, the opposite of partial application.
+
+```
+//Checks if an integer is multiple of another one.
+auto is_multiple_of	= fun::function<2>([] (int a, int b) { return (a%b)==0; });
+if (is_multiple_of(14,7)) std::cout<<"14 is multiple of 7"<<std::endl;	
+
+//The same, but taking advantage of currying
+auto is_multiple_of_c	= fun::function<1>([] (int a) { return (_==0) * (a%_); });
+if (is_multiple_of_c(14,7)) std::cout<<"14 is multiple of 7"<<std::endl;
+// instead of is_multiple_of(14)(7)	
+```
+
+In Haskell, this is not needed because functions can be directly defined by means of equations with partial application. As this is not syntactically possible in C++, the closest thing to it is this option, as illustrated in the example above.
+
+
 

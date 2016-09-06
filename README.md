@@ -53,7 +53,7 @@ which is a function that calculates the dot product of two vectors (represented 
 The documentation, sadly, is a work in progress. As time passes the [doc](https://github.com/adolfomunoz/fun/blob/master/doc) folder will be filled.
 
 Right now you can find information and examples of:
-* [Functions](https://github.com/adolfomunoz/fun/blob/master/doc/functions.md): ways of generating new functions, such as sections, currying, function composition snf `flip`
+* [Functions](https://github.com/adolfomunoz/fun/blob/master/doc/functions.md): ways of generating new functions, such as sections, currying, function composition or `flip`
 * [Higher order list functions](https://github.com/adolfomunoz/fun/blob/master/doc/higher_order.md), such as `map`, `filter` or `zipWith`
 
 ## Comparison with other functional libraries
