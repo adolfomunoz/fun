@@ -45,7 +45,6 @@ auto take_(unsigned long n, List&& l)
 {   return Take<typename std::remove_reference<List>::type>(n, std::forward<List>(l)); }
 
 
-
 /**************************************
  * fun::API                           *
  **************************************/

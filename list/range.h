@@ -1,83 +1,81 @@
 #ifndef _FUNCTIONAL_RANGE_H_
 #define _FUNCTIONAL_RANGE_H_
 
-#include "../iterator/const_iterator.h"
+#include "../list-core/forward-list.h"
 
 namespace fun
 {
 
 template<typename Num>
-class InfiniteRange
+class InfiniteRange : public ForwardListImpl<InfiniteRange<Num>,Num>
+
 {
 	Num start;
 public:
 	InfiniteRange(const Num& _start) :
 		start(_start) { }
 
-	class const_iterator : public ConstIteratorFacade<const_iterator>
-	{
-		friend class InfiniteRange<Num>;
-		Num n; bool inf;
-		const_iterator(const Num& _n) : n(_n), inf(false) { }
-		const_iterator() : inf(true) { }
+	class const_iterator_local {
+	private:
+		Num n;
 	public:
-		void inc() { n++; }
-		bool  equals(const const_iterator& that) const { return this->inf == that.inf; }
-		Num operator*() const { return n; } 		
+	        void inc() { ++n; }
+	        Num get() const { return n; }
+		bool equals(const const_iterator_local& that) const noexcept { return false; }
+		const_iterator_local(const Num& _n) : n(_n) { }
 	};
 
-	const_iterator begin() const { return const_iterator(start); }
-	const_iterator end()   const { return const_iterator();      }
+	const_iterator_local begin_local() const { return const_iterator_local(start); }
+	const_iterator_local end_local()   const { return const_iterator_local(start); }
 
 	using value_type = Num;
 };
 
 template<typename Num>
-class Range
+class Range : public ForwardListImpl<Range<Num>,Num>
 {
 	Num start; Num finish;
 public:
 	Range(const Num& _start, const Num& _finish) :
 		start(_start),finish(_finish) { }
 
-	class const_iterator : public ConstIteratorFacade<const_iterator>
-	{
-		friend class Range<Num>;
+	class const_iterator_local {
 		Num n; 
-		const_iterator(const Num& _n) : n(_n) { }
 	public:
-		void inc() { n++; }
-		bool equals(const const_iterator& that) const { return this->n >= that.n; }
-		Num operator*() const { return n; } 
+		const_iterator_local(const Num& _n) : n(_n) { }
+		void inc() { ++n; }
+		bool equals(const const_iterator_local& that) const { return this->n == that.n; }
+		Num get() const { return n; } 
 	};
 
-	const_iterator begin() const { return const_iterator(start);  }
-	const_iterator end()   const { return const_iterator(finish); }
+	const_iterator_local begin_local() const { return const_iterator_local(start);  }
+	const_iterator_local end_local()   const { Num f=finish; ++f; return const_iterator_local(f); }
 
 	using value_type = Num;
 };
 
 template<typename Num>
-class RangeStepped
+class RangeStepped : public ForwardListImpl<RangeStepped<Num>,Num>
 {
 	Num start; Num finish; Num step;
 public:
 	RangeStepped(const Num& _start, const Num& _finish, const Num& _step) :
 		start(_start),finish(_finish),step(_step) { }
 
-	class const_iterator : public ConstIteratorFacade<const_iterator>
+	class const_iterator_local
 	{
-		friend class RangeStepped<Num>;
-		Num n; const Num& step;
-		const_iterator(const Num& _n, const Num& _step) : n(_n), step(_step) { }
+		Num n; Num f; Num step; bool reached;
 	public:
-		void inc() { n+=step; }
-		bool equals(const const_iterator& that) const { return this->n >= that.n; }
-		Num operator*() const { return n; } 
+		const_iterator_local(const Num& _n, const Num& _f, const Num& _step) : n(_n), f(_f), step(_step), reached(false) { }
+		const_iterator_local() : reached(true) { }
+		void inc() { if (n==f) reached=true; n+=step; if (n>=f) n=f; }
+		bool equals(const const_iterator_local& that) const { return this->reached == that.reached; }
+		Num get() const { return n; } 
+
 	};
 
-	const_iterator begin() const { return const_iterator(start,  step); }
-	const_iterator end()   const { return const_iterator(finish, step); }
+	const_iterator_local begin_local() const { return const_iterator_local(start,  finish, step); }
+	const_iterator_local end_local()   const { return const_iterator_local(); }
 
 	using value_type = Num;
 };

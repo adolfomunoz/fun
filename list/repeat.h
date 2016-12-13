@@ -8,7 +8,8 @@
 namespace fun {
 
 template<typename ValueType>
-class Repeated 
+class Repeated : public ForwardListImpl<Repeated<ValueType>,ValueType>
+
 {
 	ValueType value;
 	friend class const_iterator;
@@ -20,21 +21,21 @@ public:
 
 	using value_type = ValueType; 
 
-	class const_iterator : public ConstIteratorFacade<const_iterator>
+	class const_iterator_local 
 	{
 		friend class Repeated<ValueType>;
 		const ValueType& value;
 
-		const_iterator(const ValueType& _value) : 
-			value(_value) { } 
 	public:
+		const_iterator_local(const ValueType& _value) : 
+			value(_value) { } 
 		void inc() { }
-		bool equals(const const_iterator& that) const { return false; }
-		const ValueType& operator*() const { return value; } 		
+		bool equals(const const_iterator_local& that) const { return false; }
+		ValueType get() const { return value; } 		
 	};
 
-	const_iterator begin() const { return const_iterator(value);  }
-	const_iterator end()   const { return const_iterator(value); }
+	const_iterator_local begin_local() const { return const_iterator_local(value);  }
+	const_iterator_local end_local()   const { return const_iterator_local(value); }
 };
 
 template<typename ValueType>

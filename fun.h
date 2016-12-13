@@ -5,7 +5,7 @@
 #include "list/comprehension.h"
 #include "list/fold.h"
 #include "list/concatenate.h"
-//#include "list/concat.h"
+#include "list/random_access.h"
 #include "list/extra.h"
 #include "list/explore.h"
 #include "list/range.h"
@@ -17,6 +17,7 @@
 #include "list/repeat.h"
 #include "list/random.h"
 #include "list/show.h"
+#include "list/constructors.h"
 
 #include "function/flip.h"
 #include "function/function.h"
