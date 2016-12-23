@@ -15,10 +15,10 @@ As oposed to Haskell, this library does not do:
 
 ## Compiling the examples
 There are several examples:
-* [fun-dot](https://github.com/adolfomunoz/fun/blob/master/examples/fun-dot.cc) computes the dot product of two vectors represented by very large `std::list<double>`. It compares the performance of three different implementations of such dot product, including a basic C++ loop, C++ function based on the 'fun' library and a pure `fun`-generated function.
-* [fun-norm](https://github.com/adolfomunoz/fun/blob/master/examples/fun-norm.cc) computes the *i-esm* norm.
-* [fun-primes](https://github.com/adolfomunoz/fun/blob/master/examples/fun-primes.cc) creates an infinite list of prime numbers and prints part of it using different strategies (`take` and `takeWhile`).
-* Go to the [examples](https://github.com/adolfomunoz/fun/blob/master/examples) directory to find more.
+* [fun-dot](examples/fun-dot.cc) computes the dot product of two vectors represented by very large `std::list<double>`. It compares the performance of three different implementations of such dot product, including a basic C++ loop, C++ function based on the 'fun' library and a pure `fun`-generated function.
+* [fun-norm](examples/fun-norm.cc) computes the *i-esm* norm.
+* [fun-primes](examples/fun-primes.cc) creates an infinite list of prime numbers and prints part of it using different strategies (`take` and `takeWhile`).
+* Go to the [examples](examples) directory to find more.
 
 You can clone the repository and compile some of the examples (git + gcc) as follows:
 ```
@@ -50,11 +50,12 @@ auto dot = fun::compose(fun::sum, fun::curry(fun::zipWith, _*_));
 which is a function that calculates the dot product of two vectors (represented as lists or generally speaking anything iterable).
 
 ## Documentation
-The documentation, sadly, is a work in progress. As time passes the [doc](https://github.com/adolfomunoz/fun/blob/master/doc) folder will be filled.
+This library is still a work in progress, and its documentation is therefore a work in progress over a work in progress (meaning it is incomplete). As time passes the [doc](doc) folder will be filled.
 
 Right now you can find information and examples of:
-* [Functions](https://github.com/adolfomunoz/fun/blob/master/doc/functions.md): ways of generating new functions, such as sections, currying, function composition or `flip`
-* [Higher order list functions](https://github.com/adolfomunoz/fun/blob/master/doc/higher_order.md), such as `map`, `filter` or `zipWith`
+* [Functions](doc/functions.md): ways of combining and generating new functions, such as sections, currying or function composition.
+* [Function generators](doc/function_generators.md): functions that generate other functions, such as `flip` or `uncurry`.
+* [Higher order list functions](doc/higher_order.md), such as `map`, `filter` or `zipWith`
 
 ## Comparison with other functional libraries
 

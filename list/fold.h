@@ -6,40 +6,16 @@
 #include "../function/misc.h"
 #include "../function/section.h"
 #include "../list-core/forward-list.h"
-#include "../list-core/cast.h"
+#include "../util/smart-auto.h"
 
 namespace fun {
 
-/*
-template<typename List, typename BinaryFunction, typename ListType>
-ForwardList<typename ListType::value_type> foldl__(const BinaryFunction& f, const ListType& e, const List& list, std::true_type)
-{
-	ForwardList<typename ListType::value_type> sol = e;
-	for (auto x : list) sol = f(sol,x);    
-	return sol;  
-}
 
 template<typename List, typename BinaryFunction, typename ElementType>
-ElementType foldl__(const BinaryFunction& f, const ElementType& e, const List& list,std::false_type)
-{
-	ElementType sol = e;
-	for (auto x : list) sol = f(sol,x);
-	return sol;  
-}
-
-template<typename List, typename BinaryFunction, typename ElementType>
-auto foldl_(const BinaryFunction& f, const ElementType& e, const List& list) 
-{	return foldl__(f,e,list,is_forward_list(e));  }
-*/
-
-template<typename List, typename BinaryFunction, typename ElementType>
-typename cast<ElementType>::type foldl_(const BinaryFunction& f, const ElementType& e, const List& list)
+typename smart_auto<ElementType>::type foldl_(const BinaryFunction& f, const ElementType& e, const List& list)
 {	
-	typename cast<ElementType>::type sol(e);
-//	std::cerr<<"INPUT : "<<sol<<std::endl;
-	for (auto x : list) { sol = f(sol,x); /*std::cerr<<x<<" -> "<<sol<<std::endl;*/ }
-//	std::cerr<<"OUTPUT: "<<sol<<std::endl;
-
+	typename smart_auto<ElementType>::type sol(e);
+	for (auto x : list) sol = f(sol,x); 
 	return sol;  
 }
 
@@ -124,11 +100,12 @@ auto foldl   = function<3>([] (auto&& f, auto&& e, const auto& list) { return fo
 auto foldl1  = function<2>([] (auto&& f, const auto& list)           { return foldl_(f,head(list),rest(list)); });
 auto foldr   = function<3>([] (auto&& f, auto&& e, const auto& list) { return foldr_(f,e,list);                });
 auto foldr1  = function<2>([] (auto&& f, const auto& list)           { return foldr1_(f,list);                 });
-auto sum     = function<1>([] (const auto& list)		     { return foldl_(_+_, (typename std::remove_reference<decltype(list)>::type::value_type)(0), list); });	
-auto product = function<1>([] (const auto& list)	   	     { return foldl_(_*_, (typename std::remove_reference<decltype(list)>::type::value_type)(1), list); });	
 auto concat  = function<1>([] (const auto& list)		     { return foldl1(_+_, list); });	
 auto andl    = function<1>([] (const auto& list)		     { return andl_(list); });
 auto orl     = function<1>([] (const auto& list)		     { return orl_(list);  });
+//Note: we assume that the lists for belows operators have at least one element. Otherwise we should provide the "null" element for all data types wrt each of the operations.
+auto sum     = foldl1(_+_); 
+auto product = foldl1(_*_);
 auto maximum = foldl1(max); 
 auto minimum = foldl1(min);
     

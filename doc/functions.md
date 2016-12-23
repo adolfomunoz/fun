@@ -65,47 +65,7 @@ std::cout<<power_of_two(8)<<std::endl;
 
 ``` 
 
-In Haskell, currying is a basic mechanism of the language, and as such there are functions that only make sense with such feature. For instance, Haskell's `const` function takes two parameters and always returns the first one. Such definition seems unneeded, but with partial application, it is actually a generator of constant functions.
-
-As `const` is a C++ reserved keyworkd, in `fun` such function is named `constant`, as in the following example:
-
-```
-auto one = fun::constant(1);
-
-std::cout<<one(32)<<std::endl;
-//Outputs 1
-std::cout<<one("what")<<std::endl;
-//Outputs 1	
-``` 
-
 Note that default currying only works for functions defined within the `fun` library. For C++11 lambda functions, or any other function, you should turn them into `fun` functions as explained below.
-
-
-## Flip
-
-In `fun` (as in Haskell) the function `flip` takes a two-parameter function and returns a new function with both parameters with switched order.
-
-```
-std::cout<<fun::pow(2,5)<<std::endl;
-//Outputs 32
-
-auto flipped_pow = fun::flip(fun::pow);
-std::cout<<flipped_pow(2,5)<<std::endl;
-//Outputs 25, as if the parameters of fun::pow were exchanged
-```
-
-It becomes useful when combined with other functional features such as currying.
-
-```
-//Currying, we omit the second parameter of the flipped function
-auto cube = fun::flip(fun::pow)(3);
-
-std::cout<<cube(5)<<std::endl;
-//Outputs 125
-std::cout<<cube(3)<<std::endl;
-//Outputs 27
-``` 
-
 
 ## Including C++ functions
 
@@ -140,6 +100,7 @@ std::cout<<gamma(0.9f)<<std::endl;
 std::cout<<gamma(1.2f)<<std::endl;
 //Outputs 1
 ```
+The funcion `flip` is described [here](function_generators.md).
 
 Note that this enables, in practice, to include new functions with side effects (pointer editing, for instance). That is definitelly not advised. It seems quite weird to use a library for functional programming and then include a side effect that destroys the foundation of functional programming. 
 

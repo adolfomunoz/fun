@@ -8,6 +8,7 @@
 #include "list/random_access.h"
 #include "list/extra.h"
 #include "list/explore.h"
+#include "list/explore-iterator.h"
 #include "list/range.h"
 #include "list/take.h"
 #include "list/takewhile.h"
@@ -19,9 +20,10 @@
 #include "list/show.h"
 #include "list/constructors.h"
 
-#include "function/flip.h"
 #include "function/function.h"
 #include "function/section.h"
+#include "function/uncurry.h"
+#include "function/flip.h"
 #include "function/misc.h"
 
 
