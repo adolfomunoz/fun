@@ -28,6 +28,9 @@ auto snd   = fun::function<1>([] (const auto& pair) { return std::get<1>(pair); 
 auto constant = fun::function<2>([] (const auto& c, const auto& dummy) { return c; });
 auto max   = fun::function<2>([] (const auto& a, const auto& b) { return (a>b)?a:b; });
 auto min   = fun::function<2>([] (const auto& a, const auto& b) { return (a<b)?a:b; });
+auto isfinite = fun::function<1>([] (const auto& a) { return std::isfinite(a); });
+auto isnan    = fun::function<1>([] (const auto& a) { return std::isnan(a); });
+auto isinf    = fun::function<1>([] (const auto& a) { return std::isinf(a); });
 
 }; //namespace fun
 

@@ -16,6 +16,8 @@ add_executable(map-standard    examples/time-versions/map-standard.cc)
 add_executable(map-explore     examples/time-versions/map-explore.cc)
 add_executable(map-cpp         examples/time-versions/map-cpp.cc)
 
+add_executable(fun-map         examples/doc/fun-map.cc)
+add_executable(fun-filter      examples/doc/fun-filter.cc)
 add_executable(fun-sections    examples/doc/fun-sections.cc)
 add_executable(fun-composition examples/doc/fun-composition.cc)
 add_executable(fun-currying    examples/doc/fun-currying.cc)

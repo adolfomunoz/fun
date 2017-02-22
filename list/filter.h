@@ -1,22 +1,26 @@
 #ifndef _FUNCTIONAL_FILTER_H_
 #define _FUNCTIONAL_FILTER_H_
 
-#include "../iterator/const_iterator.h"
 #include "../function/function.h"
+#include "../list-core/forward-list.h"
 #include <utility>
 #include <type_traits>
+#include <memory>
 
 namespace fun {
 
 template<typename List, typename Predicate>
-class Filtered
+class Filtered : public ForwardListImpl<Filtered<List,Predicate>,typename List::value_type>
 {
-	std::unique_ptr<List> list; typename List::const_iterator b; typename List::const_iterator e;
+private:
+	std::shared_ptr<List> list; typename List::const_iterator b; typename List::const_iterator e;
 	Predicate predicate;
-	friend class const_iterator;
+	friend class const_iterator_local;
 public:
+	using value_type = typename List::value_type; 
+
 	Filtered(Predicate&& _predicate, List&& _list):
-		list(std::make_unique<List>(_list)), b(*list.begin()), e(*list.end()),
+		list(std::make_shared<List>(_list)), b(*list.begin()), e(*list.end()),
 		predicate(std::forward<Predicate>(_predicate)) { }
 
 	Filtered(Predicate&& _predicate, const List& _list):
@@ -24,32 +28,36 @@ public:
 		predicate(std::forward<Predicate>(_predicate)) { }
 
 	Filtered(const Predicate& _predicate, List&& _list):
-		list(std::make_unique<List>(_list)), b(*list.begin()), e(*list.end()),
+		list(std::make_shared<List>(_list)), b(*list.begin()), e(*list.end()),
 		predicate(_predicate) { }
 
 	Filtered(const Predicate& _predicate, const List& _list):
 		b(_list.begin()), e(_list.end()),
 		predicate(_predicate) { }
 
-	class const_iterator : public ConstIteratorFacade<const_iterator>
+	class const_iterator_local
 	{
-		friend class Filtered<List,Predicate>;
 		typename List::const_iterator i;
 		const Filtered<List,Predicate>& f;
+//		Filtered<List,Predicate>::value_type v;
+		
+		//(*i) is evaluated twice for filtered data, once for the predicate and once in get. We cannot 
+		//do it otherwise because we would need to use assignment.
+		//An advance implementation would use assignment for assignable types and this way for non-assignabe.
+		void advance() { 
+			while( (i!=f.e) && (!f.predicate(*i)) ) ++i; 
+		}
 
-		void advance() { while( (i!=f.e) && (!f.predicate(*i)) ) ++i; }
-
-		const_iterator(const typename List::const_iterator& _i, const Filtered<List,Predicate>& _f) : i(_i), f(_f) { advance(); }
 	public:
 		void inc() { ++i; advance(); }
-		bool equals(const const_iterator& that) const { return this->i == that.i; }
-		typename List::value_type operator*() const { return (*i); } 		
+		bool equals(const const_iterator_local& that) const { return this->i == that.i; }
+		auto get() const { return (*i); } 		
+		const_iterator_local(const typename List::const_iterator& _i, const Filtered<List,Predicate>& _f) : 
+			i(_i), f(_f) { advance(); }
 	};
 
-	const_iterator begin() const { return const_iterator(b, *this);  }
-	const_iterator end()   const { return const_iterator(e, *this); }
-
-	using value_type = typename List::value_type;
+	const_iterator_local begin_local() const { return const_iterator_local(b, *this);  }
+	const_iterator_local end_local()   const { return const_iterator_local(e, *this); }
 };
 
 template<typename List, typename Predicate>

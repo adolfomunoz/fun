@@ -53,7 +53,7 @@ Example:
 using fun::_;
 auto l = fun::range(1,5);
 //l is [1,2,3,4,5]
-auto fl = fun::filter([] (int i) { return (i%2)==0}, l);
+auto fl = fun::filter([] (int i) { return (i%2)==0; }, l);
 //fl is [2,4]
 ```
 

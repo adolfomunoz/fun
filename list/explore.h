@@ -1,14 +1,11 @@
 #ifndef _FUNCTIONAL_EXPLORE_H_
 #define _FUNCTIONAL_EXPLORE_H_
 
-#include "../function/function.h"
-#include "../list-core/forward-list.h"
-#include "../iterator/const_iterator.h"
-#include <type_traits>
-#include <utility>
-#include <memory>
+#include "explore-iterator.h"
 
 namespace fun {
+
+
 
 //The function has only one parameter: an iterator. Every time it is called it moves the iterator as needed and returns a value.
 template<typename List, typename Function>
@@ -24,13 +21,14 @@ public:
 	class const_iterator_local {
 	private:
 		typename List::const_iterator i;
+		mutable typename List::const_iterator i_prev;
 		const Explored<List,Function>* m;
-		Explored<List,Function>::value_type v;
-	public:
-	        void inc() { v=m->function(i); }
-	        auto get() const { return v; }
+	public:	
+		void inc() { i = i_prev; }
+	        auto get() const { i_prev=i; return m->function(i_prev); }
+
 		bool equals(const const_iterator_local& that) const noexcept { return this->i==that.i; }
-		const_iterator_local(const typename List::const_iterator& _i, const Explored<List,Function>* _m) : i(_i), m(_m) { v=m->function(i); }
+		const_iterator_local(const typename List::const_iterator& _i, const Explored<List,Function>* _m) : i(_i), i_prev(i), m(_m) { }
 		friend class Explored<List,Function>;
 	};
 
@@ -62,6 +60,15 @@ auto explore_(Function&& function, List&& list)
 {	return Explored<typename std::remove_reference<List>::type, typename std::remove_reference<Function>::type>
 		(std::forward<Function>(function), std::forward<List>(list));  }
 
+//This below segfaults
+/*
+template<typename List, typename Function>
+auto explore_(Function&& function, List&& list)
+{	
+	auto i = list.begin();
+	return explore_iterator_(function,i);
+}
+*/
 
 /**************************************
  * fun::API                           *
