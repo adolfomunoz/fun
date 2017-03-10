@@ -175,6 +175,10 @@ public:
 	auto operator!() const
 	{	return function<1>([] (const auto& o1) { return !o1; }); 			}
 
+	auto operator*() const
+	{	return function<1>([] (const auto& o1) { return *o1; }); 			}
+
+
 
 };
 

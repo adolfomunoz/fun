@@ -34,6 +34,8 @@ public:
 	public:
 	        void inc() { i = i_prev; }
 	        auto get() const { i_prev=i; return m->function(i_prev); }
+		const_iterator_local& operator=(const const_iterator_local& that) 
+		{	i =that.i; i_prev = that.i_prev; m = that.m;	}
 		bool equals(const const_iterator_local& that) const noexcept { return false; }  //It never ends. It crashes. It only works with inifinite lists of iterable elements.
 		const_iterator_local(Iterator& _i, const ExploredIterator<Function,Iterator>* _m) : i(_i), i_prev(i), m(_m) { }
 		friend class ExploredIterator<Function, Iterator>;

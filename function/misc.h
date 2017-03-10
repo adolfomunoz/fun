@@ -31,6 +31,7 @@ auto min   = fun::function<2>([] (const auto& a, const auto& b) { return (a<b)?a
 auto isfinite = fun::function<1>([] (const auto& a) { return std::isfinite(a); });
 auto isnan    = fun::function<1>([] (const auto& a) { return std::isnan(a); });
 auto isinf    = fun::function<1>([] (const auto& a) { return std::isinf(a); });
+auto dereference_and_advance = fun::function<1>([] (auto& i) { return *(i++); });
 
 }; //namespace fun
 

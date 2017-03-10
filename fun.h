@@ -11,6 +11,7 @@
 #include "list/explore-iterator.h"
 #include "list/range.h"
 #include "list/take.h"
+#include "list/drop.h"
 #include "list/takewhile.h"
 #include "list/cycle.h"
 #include "list/generate.h"
