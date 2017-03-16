@@ -4,6 +4,7 @@
 #include <utility>
 #include <memory>
 #include "../function/function.h"
+#include "drop.h"
 
 namespace fun {
 
@@ -16,26 +17,6 @@ typename List::value_type head_(const List& l)
     auto i = l.begin();
     return (*i);
 };
-
-template<typename List>
-class Rest
-{
-    std::unique_ptr<List> l; typename List::const_iterator b; typename List::const_iterator e;
-public:
-    Rest(const List& _l) : b(_l.begin()), e(_l.end())                                {  ++b; } 
-    Rest(List&& _l)      : l(std::make_unique<List>(_l)), b(*l.begin()), e(*l.end()) {  ++b; }
-
-    using value_type     = typename List::value_type;
-    using const_iterator = typename List::const_iterator;
-
-    const_iterator begin() const { return b; }
-    const_iterator end()   const { return e; }
-};
-
-template<typename List>
-auto rest_(List&& l) 
-{   return Rest<typename std::remove_reference<List>::type>(std::forward<List>(l)); }
-
 
 template<typename List>
 unsigned int length_(const List& l)
@@ -61,7 +42,7 @@ bool elem_(const typename List::value_type& x, const List& l)
  * fun::API                           *
  **************************************/
 auto head   = function<1>([] (auto&& l)           { return head_(l);   });
-auto rest   = function<1>([] (auto&& l)           { return rest_(l);   });
+auto rest   = fun::drop(1); //Seems to be the best implementation
 auto length = function<1>([] (auto&& l)           { return length_(l); });
 auto elem   = function<2>([] (auto&& x, auto&& l) { return elem_(x,l); });
 auto null   = function<1>([] (auto&& l)           { return null_(l);   });

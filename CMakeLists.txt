@@ -1,4 +1,5 @@
-cmake_minimum_required(VERSION 2.4)
+cmake_minimum_required(VERSION 2.9)
+
 add_definitions(-mtune=native)
 add_definitions(-Wall)
 add_definitions(-O3)
@@ -25,3 +26,4 @@ add_executable(fun-flip        examples/doc/fun-flip.cc)
 add_executable(fun-new-functions examples/doc/fun-new-functions.cc)
 add_executable(fun-currying-2  examples/doc/fun-currying-2.cc)
 add_executable(fun-uncurry     examples/doc/fun-uncurry.cc)
+add_executable(fun-slicing     examples/doc/fun-slicing.cc)

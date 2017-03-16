@@ -13,6 +13,7 @@
 #include "list/take.h"
 #include "list/drop.h"
 #include "list/takewhile.h"
+#include "list/dropwhile.h"
 #include "list/cycle.h"
 #include "list/generate.h"
 #include "list/iterate.h"

@@ -10,7 +10,9 @@ template<typename List>
 class ListProxy : public ForwardListImpl<ListProxy<List>, typename List::value_type>
 {
 private:
-	//Why do we need shared_ptr instead of unique_ptr? I am not sure...
+	//We need shared_ptr instead of unique_ptr because otherwise
+	//it is not copyable. For polymorphism we need them to be
+	//copyable
 	std::shared_ptr<List> list; typename List::const_iterator b; typename List::const_iterator e;
 
 public:
@@ -20,8 +22,8 @@ public:
 	private:
 		typename List::const_iterator i;
 	public:
-	        void inc() { ++i; }
-	        auto get() const { return (*i); }
+	    void inc() { ++i; }
+	    auto get() const { return (*i); }
 		bool equals(const const_iterator_local& that) const noexcept { return this->i==that.i; }
 		const_iterator_local(const typename List::const_iterator& _i) : i(_i) { }
 	};
