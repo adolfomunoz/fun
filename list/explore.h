@@ -25,7 +25,12 @@ public:
 		const Explored<List,Function>* m;
 	public:	
 		void inc() { i = i_prev; }
-	        auto get() const { i_prev=i; return m->function(i_prev); }
+	    auto get() const {
+			std::cerr<<"Pre-get : "<<*i<<" , "<<*i_prev<<"\t";
+			i_prev = i; auto sol = m->function(i_prev); 
+			std::cerr<<"Post-get: "<<*i<<" , "<<*i_prev<<std::endl;
+			return sol;
+		}
 
 		bool equals(const const_iterator_local& that) const noexcept { return this->i==that.i; }
 		const_iterator_local(const typename List::const_iterator& _i, const Explored<List,Function>* _m) : i(_i), i_prev(i), m(_m) { }

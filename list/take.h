@@ -3,6 +3,9 @@
 
 #include "../list-core/forward-list.h"
 #include "../function/function.h"
+#include "zip.h"
+#include "../function/misc.h"
+#include "../function/flip.h"
 #include <memory>
 
 namespace fun {
@@ -50,6 +53,8 @@ auto take_(unsigned long n, List&& l)
  * fun::API                           *
  **************************************/
 auto take   = function<2>([] (unsigned long n, auto&& l) { return take_(n, l);   });
+auto take_2   = function<1>([] (unsigned long n) 
+{	return fun::zipWith(fun::flip(fun::constant), fun::range((unsigned long)(1),n));  });
 
 };
 

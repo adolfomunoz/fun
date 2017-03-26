@@ -13,9 +13,9 @@ add_executable(fun-nspheres    examples/fun-nspheres.cc)
 add_executable(fun-polymorphic examples/fun-polymorphic.cc)
 add_executable(fun-ivp         examples/fun-ivp.cc)
 
-add_executable(map-standard    examples/time-versions/map-standard.cc)
-add_executable(map-explore     examples/time-versions/map-explore.cc)
-add_executable(map-cpp         examples/time-versions/map-cpp.cc)
+add_executable(fun-time-map         examples/time/map.cc)
+add_executable(fun-time-polymorphic examples/time/polymorphic.cc)
+add_executable(fun-time-take        examples/time/take.cc)
 
 add_executable(fun-map         examples/doc/fun-map.cc)
 add_executable(fun-filter      examples/doc/fun-filter.cc)

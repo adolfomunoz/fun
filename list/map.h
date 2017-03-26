@@ -3,6 +3,7 @@
 
 #include "../function/function.h"
 #include "../list-core/forward-list.h"
+#include "explore.h"
 #include <type_traits>
 #include <utility>
 #include <memory>
@@ -62,8 +63,10 @@ auto map_(Function&& function, List&& list)
 /**************************************
  * fun::API                           *
  **************************************/
-auto map = function<2>([] (auto&& p1, auto&& p2) { return map_(p1, p2); });
-
+auto map   = function<2>([] (auto&& p1, auto&& p2) { return map_(p1, p2); });
+auto map_2 = function<2>([] (auto&& f, auto&& l) {
+	return explore([f] (auto& i) { std::cerr<<*i<<" "; return f(*(i++)); },l);
+});
 }; //namespace fun
 
 #endif
