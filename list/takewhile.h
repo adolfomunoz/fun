@@ -9,30 +9,26 @@ namespace fun {
 template<typename List, typename Predicate>
 class TakeWhile:  public ForwardListImpl<TakeWhile<List,Predicate>,typename List::value_type>
 {
-	ListProxy<List> l;
     Predicate predicate;
-public:
-/*    TakeWhile(const Predicate& predicate, List&& _l) : 
-	    l(std::forward<List>(l)),
-	    predicate(predicate) { } 
-*/
+	List l;
 
-	template<typename L>
-    TakeWhile(Predicate&& predicate, L l) : 
-	    l(l),
-	    predicate(std::forward<Predicate>(predicate)) { } 
+public:
+	TakeWhile(Predicate&& predicate, List&& l) : predicate(predicate), l(l) { }
+	TakeWhile(const Predicate& predicate, List&& l) : predicate(predicate), l(l) { }
+	TakeWhile(Predicate&& predicate, const List& l) : predicate(predicate), l(l) { }
+	TakeWhile(const Predicate& predicate, const List& l) : predicate(predicate), l(l) { }
 
     class const_iterator_local 
     {
 	    friend class TakeWhile<List, Predicate>;
-	    typename ListProxy<List>::const_iterator i;
+	    typename List::const_iterator i;
 	    const Predicate& predicate;
 
 	public:
 		void inc() { ++i; }
 		bool equals(const const_iterator_local& that) const       { return (this->i == that.i) || (!predicate(*i)); }
 		typename List::value_type get() const { return *i;   } 		
-	    const_iterator_local(const typename ListProxy<List>::const_iterator& _i, const Predicate& p) : i(_i), predicate(p) { }
+	    const_iterator_local(const typename List::const_iterator& _i, const Predicate& p) : i(_i), predicate(p) { }
     };
 
     using value_type     = typename List::value_type;

@@ -6,7 +6,6 @@
 #include "zip.h"
 #include "../function/misc.h"
 #include "../function/flip.h"
-#include <memory>
 
 namespace fun {
 
@@ -14,15 +13,13 @@ template<typename List>
 class Take :  public ForwardListImpl<Take<List>,typename List::value_type>
 
 {
-    std::shared_ptr<List> l; typename List::const_iterator b; typename List::const_iterator e;
-    unsigned long n;
+	unsigned long n;
+    List l;
+
 public:
-    Take(unsigned long _n, const List& _l) : 
-	    b(_l.begin()), e(_l.end()), 
-	    n(_n) { } 
-    Take(unsigned long _n, List&& _l) : 
-	    l(std::make_shared<List>(_l)), b(*l.begin()), e(*l.end()),
-       	    n(_n) { }
+    template<typename L>
+    Take(unsigned long n, const List& l)      : n(n), l(l) { }
+    Take(unsigned long n, List&& l)  noexcept : n(n), l(l) { }
 
     class const_iterator_local 
     {
@@ -39,8 +36,8 @@ public:
 
     using value_type     = typename List::value_type;
 
-    const_iterator_local begin_local() const { return const_iterator_local(b, 0); }
-    const_iterator_local end_local()   const { return const_iterator_local(e, n); }
+    const_iterator_local begin_local() const { return const_iterator_local(l.begin(), 0); }
+    const_iterator_local end_local()   const { return const_iterator_local(l.end()  , n); }
 };
 
 template<typename List>
