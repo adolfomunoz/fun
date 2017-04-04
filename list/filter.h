@@ -13,27 +13,15 @@ template<typename List, typename Predicate>
 class Filtered : public ForwardListImpl<Filtered<List,Predicate>,typename List::value_type>
 {
 private:
-	std::shared_ptr<List> list; typename List::const_iterator b; typename List::const_iterator e;
+	List list;
 	Predicate predicate;
-	friend class const_iterator_local;
 public:
 	using value_type = typename List::value_type; 
 
-	Filtered(Predicate&& _predicate, List&& _list):
-		list(std::make_shared<List>(_list)), b(*list.begin()), e(*list.end()),
-		predicate(std::forward<Predicate>(_predicate)) { }
-
-	Filtered(Predicate&& _predicate, const List& _list):
-		b(_list.begin()), e(_list.end()),
-		predicate(std::forward<Predicate>(_predicate)) { }
-
-	Filtered(const Predicate& _predicate, List&& _list):
-		list(std::make_shared<List>(_list)), b(*list.begin()), e(*list.end()),
-		predicate(_predicate) { }
-
-	Filtered(const Predicate& _predicate, const List& _list):
-		b(_list.begin()), e(_list.end()),
-		predicate(_predicate) { }
+	Filtered(Predicate&& predicate, List&& list):      list(list), predicate(predicate) { }
+	Filtered(Predicate&& predicate, const List& list): list(list), predicate(predicate) { }
+	Filtered(const Predicate& predicate, List&& list):      list(list), predicate(predicate) { }
+	Filtered(const Predicate& predicate, const List& list): list(list), predicate(predicate) { }
 
 	class const_iterator_local
 	{
@@ -45,7 +33,7 @@ public:
 		//do it otherwise because we would need to use assignment.
 		//An advance implementation would use assignment for assignable types and this way for non-assignabe.
 		void advance() { 
-			while( (i!=f.e) && (!f.predicate(*i)) ) ++i; 
+			while( (i!=f.list.end()) && (!f.predicate(*i)) ) ++i; 
 		}
 
 	public:
@@ -56,8 +44,8 @@ public:
 			i(_i), f(_f) { advance(); }
 	};
 
-	const_iterator_local begin_local() const { return const_iterator_local(b, *this);  }
-	const_iterator_local end_local()   const { return const_iterator_local(e, *this); }
+	const_iterator_local begin_local() const { return const_iterator_local(list.begin(), *this); }
+	const_iterator_local end_local()   const { return const_iterator_local(list.end(),   *this); }
 };
 
 template<typename List, typename Predicate>

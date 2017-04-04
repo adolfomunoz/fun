@@ -1,3 +1,7 @@
+#include "list-core/list.h"
+#include "list-core/list-proxy.h"
+
+
 #include "list/item.h"
 #include "list/map.h"
 #include "list/filter.h"
@@ -33,4 +37,3 @@
 #include "util/to_list.h"
 #include "util/to_vector.h"
 
-#include "list-core/list.h"

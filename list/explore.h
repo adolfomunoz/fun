@@ -12,7 +12,7 @@ template<typename List, typename Function>
 class Explored : public ForwardListImpl<Explored<List,Function>,decltype(std::declval<Function>()(std::declval<typename List::const_iterator&>()))>
 {
 private:
-	std::shared_ptr<List> list; typename List::const_iterator b; typename List::const_iterator e;
+	List list;
 	Function function;
 
 public:
@@ -26,9 +26,9 @@ public:
 	public:	
 		void inc() { i = i_prev; }
 	    auto get() const {
-			std::cerr<<"Pre-get : "<<*i<<" , "<<*i_prev<<"\t";
+//			std::cerr<<"Pre-get : "<<*i<<" , "<<*i_prev<<"\t";
 			i_prev = i; auto sol = m->function(i_prev); 
-			std::cerr<<"Post-get: "<<*i<<" , "<<*i_prev<<std::endl;
+//			std::cerr<<"Post-get: "<<*i<<" , "<<*i_prev<<std::endl;
 			return sol;
 		}
 
@@ -37,24 +37,13 @@ public:
 		friend class Explored<List,Function>;
 	};
 
-	const_iterator_local begin_local() const { return const_iterator_local(b, this);  }
-	const_iterator_local end_local()   const { return const_iterator_local(e, this);  }
+	const_iterator_local begin_local() const { return const_iterator_local(list.begin(), this);  }
+	const_iterator_local end_local()   const { return const_iterator_local(list.end(), this);  }
 
-	Explored(Function&& _function, List&& _list):
-		list(std::make_shared<List>(_list)), b(*list.begin()), e(*list.end()), 
-		function(std::forward<Function>(_function)) { }
-
-	Explored(Function&& _function, const List& _list):
-		b(_list.begin()), e(_list.end()), 
-		function(std::forward<Function>(_function)) { }
-
-	Explored(const Function& _function, List&& _list):
-		list(std::make_shared<List>(_list)), b(*list.begin()), e(*list.end()), 
-		function(_function) { }
-
-	Explored(const Function& _function, const List& _list):
-		b(_list.begin()), e(_list.end()), 
-		function(_function) { }
+	Explored(Function&& function, List&& list): list(list), function(function) {}
+	Explored(Function&& function, const List& list): list(list), function(function) {}
+	Explored(const Function& function, List&& list): list(list), function(function) {}
+	Explored(const Function& function, const List& list): list(list), function(function) {}
 
 
 };

@@ -17,7 +17,6 @@ class Take :  public ForwardListImpl<Take<List>,typename List::value_type>
     List l;
 
 public:
-    template<typename L>
     Take(unsigned long n, const List& l)      : n(n), l(l) { }
     Take(unsigned long n, List&& l)  noexcept : n(n), l(l) { }
 

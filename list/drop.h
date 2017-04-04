@@ -1,8 +1,8 @@
 #ifndef _FUNCTIONAL_LIST_DROP_H_
 #define _FUNCTIONAL_LIST_DROP_H_
 
-#include "../list-core/list-proxy.h"
 #include "../function/function.h"
+#include "../list-core/list-proxy.h"
 
 namespace fun {
 
@@ -10,11 +10,10 @@ namespace fun {
 // invocation (not in lazy evaluation) because it requieres
 // to advance the iterator
 template<typename List>
-auto drop_(unsigned long n, List&& l)
-{
-	auto iter = l.begin();
-	for (unsigned int i = 0; i < n; ++i) { ++iter; }
-	return list_proxy(std::forward<List>(l), iter);
+auto drop_(unsigned long n, List&& l) {
+	auto sol = list_proxy(std::forward<List>(l));
+	for (unsigned long i=0; i<n; ++i) sol.pop_front();
+	return sol;
 }
 
 /**************************************

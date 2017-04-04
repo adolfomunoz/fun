@@ -15,51 +15,26 @@ namespace fun {
 template<typename List1, typename List2, typename Function>
 class ZippedWith : public ForwardListImpl<ZippedWith<List1,List2,Function>,decltype(std::declval<Function>()(std::declval<typename List1::value_type>(), std::declval<typename List2::value_type>()))>
 {
-	std::shared_ptr<List1> list1; typename List1::const_iterator begin1; typename List1::const_iterator end1;
-	std::shared_ptr<List2> list2; typename List2::const_iterator begin2; typename List2::const_iterator end2;
+	List1 list1;
+	List2 list2; 
 	Function function;
-	friend class const_iterator_local;
 public:
-	ZippedWith(Function&& _function, List1&& _list1, List2&& _list2):
-		list1(std::make_shared(_list1)), begin1(*list1.begin()), end1(*list1.end()), 
-		list2(std::make_shared(_list2)), begin2(*list2.begin()), end2(*list2.end()),
-		function(std::forward<Function>(_function)) { }
-
-	ZippedWith(Function&& _function, const List1& _list1, List2&& _list2):
-		begin1(_list1.begin()), end1(_list1.end()), 
-		list2(std::make_shared(_list2)), begin2(*list2.begin()), end2(*list2.end()),
-		function(std::forward<Function>(_function)) { }
-
-	ZippedWith(Function&& _function, List1&& _list1, const List2& _list2):
-		list1(std::make_shared(_list1)), begin1(*list1.begin()), end1(*list1.end()), 
-		begin2(_list2.begin()), end2(_list2.end()),
-		function(std::forward<Function>(_function)) { }
-
-	ZippedWith(Function&& _function, const List1& _list1, const List2& _list2):
-		begin1(_list1.begin()), end1(_list1.end()), 
-		begin2(_list2.begin()), end2(_list2.end()),
-		function(std::forward<Function>(_function)) { }
-
-	ZippedWith(const Function& _function, List1&& _list1, List2&& _list2):
-		list1(std::make_shared(_list1)), begin1(*list1.begin()), end1(*list1.end()), 
-		list2(std::make_shared(_list2)), begin2(*list2.begin()), end2(*list2.end()),
-		function(_function) { }
-
-	ZippedWith(const Function& _function, const List1& _list1, List2&& _list2):
-		begin1(_list1.begin()), end1(_list1.end()), 
-		list2(std::make_shared(_list2)), begin2(*list2.begin()), end2(*list2.end()),
-		function(_function) { }
-
-	ZippedWith(const Function& _function, List1&& _list1, const List2& _list2):
-		list1(std::make_shared(_list1)), begin1(*list1.begin()), end1(*list1.end()), 
-		begin2(_list2.begin()), end2(_list2.end()),
-		function(_function) { }
-
-	ZippedWith(const Function& _function, const List1& _list1, const List2& _list2):
-		begin1(_list1.begin()), end1(_list1.end()), 
-		begin2(_list2.begin()), end2(_list2.end()),
-		function(_function) { }
-
+	ZippedWith(Function&& function, List1&& list1, List2&& list2):
+		list1(list1), list2(list2), function(function) { }
+	ZippedWith(Function&& function, List1&& list1, const List2& list2):
+		list1(list1), list2(list2), function(function) { }
+	ZippedWith(Function&& function, const List1& list1, List2&& list2):
+		list1(list1), list2(list2), function(function) { }
+	ZippedWith(Function&& function, const List1& list1, const List2& list2):
+		list1(list1), list2(list2), function(function) { }
+	ZippedWith(const Function& function, List1&& list1, List2&& list2):
+		list1(list1), list2(list2), function(function) { }
+	ZippedWith(const Function& function, List1&& list1, const List2& list2):
+		list1(list1), list2(list2), function(function) { }
+	ZippedWith(const Function& function, const List1& list1, List2&& list2):
+		list1(list1), list2(list2), function(function) { }
+	ZippedWith(const Function& function, const List1& list1, const List2& list2):
+		list1(list1), list2(list2), function(function) { }
 
 	using value_type= typename ForwardListImpl<ZippedWith<List1,List2,Function>,decltype(std::declval<Function>()(std::declval<typename List1::value_type>(), std::declval<typename List2::value_type>()))>::value_type;
 
@@ -79,8 +54,8 @@ public:
 		ZippedWith<List1, List2, Function>::value_type get() const { return zw->function(*i1,*i2); } 		
 	};
 
-	const_iterator_local begin_local() const { return const_iterator_local(begin1, begin2, this);  }
-	const_iterator_local end_local()   const { return const_iterator_local(end1,   end2,   this);  }
+	const_iterator_local begin_local() const { return const_iterator_local(list1.begin(), list2.begin(), this);  }
+	const_iterator_local end_local()   const { return const_iterator_local(list1.end(),   list2.end(),   this);  }
 };
 
 template<typename List1, typename List2, typename Function>

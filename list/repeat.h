@@ -1,7 +1,7 @@
 #ifndef _FUNCTIONAL_REPEAT_H_
 #define _FUNCTIONAL_REPEAT_H_
 
-#include "../iterator/const_iterator.h"
+#include "../list-core/forward-list.h"
 #include <type_traits>
 
 
@@ -12,7 +12,6 @@ class Repeated : public ForwardListImpl<Repeated<ValueType>,ValueType>
 
 {
 	ValueType value;
-	friend class const_iterator;
 public:
 	Repeated(const ValueType& _value):
 		value(_value) { }
@@ -23,7 +22,6 @@ public:
 
 	class const_iterator_local 
 	{
-		friend class Repeated<ValueType>;
 		const ValueType& value;
 
 	public:

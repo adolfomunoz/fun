@@ -26,7 +26,6 @@ public:
 	virtual std::unique_ptr<ConstIteratorPolymorphic> make_iterator_begin() const = 0; 	
 	virtual std::unique_ptr<ConstIteratorPolymorphic> make_iterator_end() const = 0;
 	virtual std::unique_ptr<ForwardListPolymorphic<T>> clone() const = 0;
-
 };
 
 template<typename T>
@@ -34,22 +33,6 @@ class ForwardList {
 	std::shared_ptr<ForwardListPolymorphic<T>> base;
 public:
 	ForwardList() { }
-
-	template<typename L>
-	ForwardList(const L& l) :
-		base(std::make_shared<L>(l)) 
-	{ static_assert(std::is_base_of<ForwardListPolymorphic<T>, L>::value, 
-        			"The list L must be a descendant of ForwardListPolymorphic<T>"); 
-//                std::cerr<<"ForwardList(const L&) "<<typeid(*base).name()<<std::endl;	
-	}
-
-	template<typename L>
-	ForwardList(L&& l) :
-		base(std::make_shared<L>(std::forward<L>(l))) 
-	{ static_assert(std::is_base_of<ForwardListPolymorphic<T>, L>::value, 
-        			"The list L must be a descendant of ForwardListPolymorphic<T>");
-//                std::cerr<<"ForwardList(L&&) "<<typeid(*base).name()<<std::endl;	
-	}
 	
 	ForwardList(const ForwardList<T>& l) :
 		base(l.base->clone()) 
@@ -62,6 +45,23 @@ public:
 //	        std::cerr<<"ForwardList(ForwardList<L>&&) "<<typeid(*base).name()<<std::endl;	       
 	}
 
+
+	template<typename L>
+	ForwardList(const L& l) :
+		base(std::make_shared<L>(l)) 
+	{ static_assert(std::is_base_of<ForwardListPolymorphic<T>, L>::value, 
+        			"The list L must be a descendant of ForwardListPolymorphic<T>"); 
+//                std::cerr<<"ForwardList(const L&) "<<typeid(*base).name()<<std::endl;	
+	}
+
+	template<typename L>
+	ForwardList(L&& l) :
+		base(std::make_shared<L>(l)) 
+	{ static_assert(std::is_base_of<ForwardListPolymorphic<T>, L>::value, 
+        			"The list L must be a descendant of ForwardListPolymorphic<T>");
+//                std::cerr<<"ForwardList(L&&) "<<typeid(*base).name()<<std::endl;	
+	}
+	
 	template<typename L>
 	ForwardList<T>& operator=(const L& l) 
 	{	base = std::make_shared<L>(l); 
@@ -76,10 +76,12 @@ public:
         			"The list L must be a descendant of ForwardListPolymorphic<T>");
 //                std::cerr<<"operator=(L&&) "<<typeid(*base).name()<<std::endl;	
 		return (*this); }
+		
 	ForwardList<T>& operator=(const ForwardList<T>& l) 
 	{	base = l.base->clone();   
 //                std::cerr<<"operator=(const ForwardList<L>&) "<<typeid(*base).name()<<std::endl;	
 		return (*this);  }
+		
 	ForwardList<T>& operator=(ForwardList<T>&& l) 
 	{	base = std::move(l.base);   
 //                std::cerr<<"operator=(ForwardList<L>&&) "<<typeid(*base).name()<<std::endl;	
@@ -112,6 +114,8 @@ public:
 	const_iterator begin()  const { return const_iterator(this->base, this->base->make_iterator_begin()); }
 	const_iterator end()    const { return const_iterator(this->base, this->base->make_iterator_end());   }
 
+	T front() const { return *(begin()); }
+
 	std::string type_name() {
 		std::stringstream sstr;
 		sstr<<"ForwardList<"<<typeid(T).name()<<"> - "<<typeid(*base).name();
@@ -142,7 +146,7 @@ public:
 		void inc() override { cil.inc(); }
 		T get() const override { return cil.get(); }
 		bool equals(const typename ForwardListPolymorphic<T>::ConstIteratorPolymorphic& t) const override {
-			try {
+			try { //Maybe this can be sped up without the exception and with a reinterpret_cast
 				const const_iterator& that = dynamic_cast<const const_iterator&>(t);
 				return cil.equals(that.cil);
 			} catch (const std::bad_cast& e) { return false; }
@@ -161,6 +165,8 @@ public:
 	const_iterator begin() const { return const_iterator(static_cast<const L*>(this)->begin_local()); }
 	const_iterator end()   const { return const_iterator(static_cast<const L*>(this)->end_local());   }
 
+	T front() const { return *(begin()); }
+	
 protected:
 	std::unique_ptr<typename ForwardListPolymorphic<T>::ConstIteratorPolymorphic> make_iterator_begin() const override {
 		return std::make_unique<const_iterator>(static_cast<const L*>(this)->begin_local());

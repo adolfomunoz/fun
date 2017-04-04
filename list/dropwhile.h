@@ -12,9 +12,9 @@ namespace fun {
 template<typename Predicate, typename List>
 auto dropWhile_(const Predicate& predicate, List&& l)
 {
-	auto iter = l.begin();
-	while (predicate(*iter)) ++iter;
-	return list_proxy(std::forward<List>(l), iter);
+	auto sol = list_proxy(std::forward<List>(l));
+	while (predicate(sol.front())) sol.pop_front();
+	return sol;
 }
 
 /**************************************

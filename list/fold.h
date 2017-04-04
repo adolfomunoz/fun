@@ -4,6 +4,7 @@
 #include "item.h"
 #include "../function/function.h"
 #include "../function/misc.h"
+#include "../list/item.h"
 #include "../function/section.h"
 #include "../list-core/forward-list.h"
 #include "../util/smart-auto.h"
@@ -18,6 +19,19 @@ typename smart_auto<ElementType>::type foldl_(const BinaryFunction& f, const Ele
 	for (auto x : list) sol = f(sol,x); 
 	return sol;  
 }
+
+// This below works very slow. We don't use it.
+template<typename List, typename BinaryFunction >
+auto foldl1_(const BinaryFunction& f, const List& list)
+{	
+	auto i = list.begin();
+	typename smart_auto<decltype(*i)>::type sol = *i; ++i;
+	while (i != list.end()) {  
+		sol = f(sol, *i); ++i;
+	}
+	return sol;  
+}
+
 
 /**
  * Should never be called directly
@@ -97,7 +111,7 @@ bool any_(const Predicate& p, const List& list)
  * fun::API                           *
  **************************************/
 auto foldl   = function<3>([] (auto&& f, auto&& e, const auto& list) { return foldl_(f,e,list);                });
-auto foldl1  = function<2>([] (auto&& f, const auto& list)           { return foldl_(f,head(list),rest(list)); });
+auto foldl1  = function<2>([] (auto&& f, auto&& list)                { return foldl(f,head(list),rest(list));  });
 auto foldr   = function<3>([] (auto&& f, auto&& e, const auto& list) { return foldr_(f,e,list);                });
 auto foldr1  = function<2>([] (auto&& f, const auto& list)           { return foldr1_(f,list);                 });
 auto concat  = function<1>([] (const auto& list)		     { return foldl1(_+_, list); });	

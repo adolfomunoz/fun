@@ -15,7 +15,7 @@ template<typename List, typename Function>
 class Mapped : public ForwardListImpl<Mapped<List,Function>,decltype(std::declval<Function>()(std::declval<typename List::value_type>()))>
 {
 private:
-	std::shared_ptr<List> list; typename List::const_iterator b; typename List::const_iterator e;
+	List list;
 	Function function;
 
 public:
@@ -24,35 +24,23 @@ public:
 	class const_iterator_local {
 	private:
 		typename List::const_iterator i;
-		const Mapped<List,Function>* m;
+		const Function& f;
 	public:
-	        void inc() { ++i; }
-	        auto get() const { return m->function(*i); }
-		bool equals(const const_iterator_local& that) const noexcept { return this->i==that.i; }
-		const_iterator_local(const typename List::const_iterator& _i, const Mapped<List,Function>* _m) : i(_i), m(_m) { }
-		friend class Mapped<List,Function>;
+	    void inc() { ++i; }
+	    auto get() const { return f(*i); }
+		bool equals(const const_iterator_local& that) const noexcept 
+		{ 	return this->i==that.i; 	}
+		const_iterator_local(const typename List::const_iterator& i, 
+							 const Function& f) : i(i), f(f) { }
 	};
 
-	const_iterator_local begin_local() const { return const_iterator_local(b, this);  }
-	const_iterator_local end_local()   const { return const_iterator_local(e, this);  }
+	const_iterator_local begin_local() const { return const_iterator_local(list.begin(), function);  }
+	const_iterator_local end_local()   const { return const_iterator_local(list.end(), function);  }
 
-	Mapped(Function&& _function, List&& _list):
-		list(std::make_shared<List>(_list)), b(*list.begin()), e(*list.end()), 
-		function(std::forward<Function>(_function)) { }
-
-	Mapped(Function&& _function, const List& _list):
-		b(_list.begin()), e(_list.end()), 
-		function(std::forward<Function>(_function)) { }
-
-	Mapped(const Function& _function, List&& _list):
-		list(std::make_shared<List>(_list)), b(*list.begin()), e(*list.end()), 
-		function(_function) { }
-
-	Mapped(const Function& _function, const List& _list):
-		b(_list.begin()), e(_list.end()), 
-		function(_function) { }
-
-
+	Mapped(Function&& f, List&& l): list(l), function(f) { }
+	Mapped(Function&& f, const List& l): list(l), function(f) { }
+	Mapped(const Function& f, List&& l): list(l), function(f) { }
+	Mapped(const Function& f, const List& l): list(l), function(f) { }
 };
 
 template<typename List, typename Function>
@@ -64,8 +52,10 @@ auto map_(Function&& function, List&& list)
  * fun::API                           *
  **************************************/
 auto map   = function<2>([] (auto&& p1, auto&& p2) { return map_(p1, p2); });
+
+//Does not work because explore does not work propperly
 auto map_2 = function<2>([] (auto&& f, auto&& l) {
-	return explore([f] (auto& i) { std::cerr<<*i<<" "; return f(*(i++)); },l);
+	return explore([f] (auto& i) { return f(*(i++)); },l);
 });
 }; //namespace fun
 

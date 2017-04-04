@@ -14,6 +14,7 @@ add_executable(fun-polymorphic examples/fun-polymorphic.cc)
 add_executable(fun-ivp         examples/fun-ivp.cc)
 
 add_executable(fun-time-map         examples/time/map.cc)
+add_executable(fun-time-filter      examples/time/filter.cc)
 add_executable(fun-time-polymorphic examples/time/polymorphic.cc)
 add_executable(fun-time-take        examples/time/take.cc)
 
