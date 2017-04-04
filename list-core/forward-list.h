@@ -146,10 +146,12 @@ public:
 		void inc() override { cil.inc(); }
 		T get() const override { return cil.get(); }
 		bool equals(const typename ForwardListPolymorphic<T>::ConstIteratorPolymorphic& t) const override {
-			try { //Maybe this can be sped up without the exception and with a reinterpret_cast
-				const const_iterator& that = dynamic_cast<const const_iterator&>(t);
-				return cil.equals(that.cil);
-			} catch (const std::bad_cast& e) { return false; }
+			//This should work in compile time and risky in runtime (but should not happen anything wrong)
+			return cil.equals(static_cast<const const_iterator&>(t).cil);
+//			try { //Maybe this can be sped up without the exception and with a reinterpret_cast
+//				const const_iterator& that = dynamic_cast<const const_iterator&>(t);
+//				return cil.equals(that.cil);
+//			} catch (const std::bad_cast& e) { return false; }
 		}
 
                 std::unique_ptr<typename ForwardListPolymorphic<T>::ConstIteratorPolymorphic> clone() const override { return std::make_unique<const_iterator>(*this); }
