@@ -37,21 +37,31 @@ public:
 	const_iterator_local begin_local() const { return const_iterator_local(list.begin(), function);  }
 	const_iterator_local end_local()   const { return const_iterator_local(list.end(), function);  }
 
-	Mapped(Function&& f, List&& l): list(l), function(f) { }
-	Mapped(Function&& f, const List& l): list(l), function(f) { }
-	Mapped(const Function& f, List&& l): list(l), function(f) { }
-	Mapped(const Function& f, const List& l): list(l), function(f) { }
+	Mapped(Function&& f, List&& l): list(std::forward<List>(l)), function(f) { 
+		//std::cerr<<"map moves list"<<std::endl;   
+	}
+	Mapped(Function&& f, const List& l): list(l), function(f) { 
+		//std::cerr<<"map copies list"<<std::endl;   
+	}
+	Mapped(const Function& f, List&& l): list(std::forward<List>(l)), function(f) {
+		//std::cerr<<"map moves list"<<std::endl;   
+	}
+	Mapped(const Function& f, const List& l): list(l), function(f) { 
+		//std::cerr<<"map copies list"<<std::endl;   
+	}
 };
 
 template<typename List, typename Function>
 auto map_(Function&& function, List&& list)
 {	return Mapped<typename std::remove_reference<List>::type, typename std::remove_reference<Function>::type>
 		(std::forward<Function>(function), std::forward<List>(list));  }
+		
 
 /**************************************
  * fun::API                           *
  **************************************/
-auto map   = function<2>([] (auto&& p1, auto&& p2) { return map_(p1, p2); });
+auto map   = function<2>([] (auto&& p1, auto&& p2) { return map_(p1, 
+	std::forward<decltype(p2)>(p2)); });
 
 //Does not work because explore does not work propperly
 auto map_2 = function<2>([] (auto&& f, auto&& l) {

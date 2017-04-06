@@ -1,8 +1,12 @@
 cmake_minimum_required(VERSION 2.9)
 
-add_definitions(-mtune=native)
-add_definitions(-Wall)
-add_definitions(-O3)
+#add_definitions(-mtune=native)
+#add_definitions(-Wall)
+#add_definitions(-O3)
+
+SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pg")
+SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -pg")
+SET(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -pg")
 
 add_definitions(-std=c++14)
 add_executable(fun-dot         examples/fun-dot.cc)
@@ -28,3 +32,4 @@ add_executable(fun-new-functions examples/doc/fun-new-functions.cc)
 add_executable(fun-currying-2  examples/doc/fun-currying-2.cc)
 add_executable(fun-uncurry     examples/doc/fun-uncurry.cc)
 add_executable(fun-slicing     examples/doc/fun-slicing.cc)
+add_executable(fun-stl-copy-move examples/doc/fun-stl-copy-move.cc)
