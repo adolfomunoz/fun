@@ -11,8 +11,8 @@
 
 namespace fun {
 
-template<typename List, typename Function>
-class Mapped : public ForwardListImpl<Mapped<List,Function>,decltype(std::declval<Function>()(std::declval<typename List::value_type>()))>
+template<typename Function, typename List>
+class Mapped : public ForwardListImpl<Mapped<Function,List>,decltype(std::declval<Function>()(std::declval<typename List::value_type>()))>
 {
 private:
 	List list;
@@ -51,17 +51,20 @@ public:
 	}
 };
 
+/*
 template<typename List, typename Function>
 auto map_(Function&& function, List&& list)
 {	return Mapped<typename std::remove_reference<List>::type, typename std::remove_reference<Function>::type>
 		(std::forward<Function>(function), std::forward<List>(list));  }
-		
+*/		
 
 /**************************************
  * fun::API                           *
  **************************************/
-auto map   = function<2>([] (auto&& p1, auto&& p2) { return map_(p1, 
-	std::forward<decltype(p2)>(p2)); });
+auto map   = function<2>([] (auto&& p1, auto&& p2) { 
+	return Mapped<typename std::remove_reference<decltype(p1)>::type, typename std::remove_reference<decltype(p2)>::type>(
+		std::forward<decltype(p1)>(p1), std::forward<decltype(p2)>(p2)); 
+});
 
 //Does not work because explore does not work propperly
 auto map_2 = function<2>([] (auto&& f, auto&& l) {
