@@ -10,7 +10,7 @@ using fun::_;
 std::list<int> create(unsigned int size) {
 	std::list<int> sol;
 	for (unsigned int i = 0;i<size;++i) {
-		sol.push_back(2*(i%2) - 1);
+		sol.push_back((i%5) - 2);
 	}
 	return sol;
 }
@@ -31,8 +31,8 @@ int main(int argc, char** argv) {
 	{
 	start = std::chrono::system_clock::now();
 	std::list<int> l = create(size); //Move constructor
-	sol = 2*l.front();
-//	for (int i : l) sol+=2*i;	
+	sol = 0;
+    for (int i : l) if ((i % 2) == 0) sol+=5*i;	
 	duration = std::chrono::system_clock::now() - start;
 	base_duration = duration.count();
 	std::cout<<"cpp     -> "
@@ -44,7 +44,9 @@ int main(int argc, char** argv) {
 	{
 	start = std::chrono::system_clock::now();
 	std::list<int> l = create(size); //Move constructor
-	sol = fun::head(fun::map(_*2,l)); //fun::map copies l (copy constructor). SLOW
+	sol = 0;
+	for (int i : fun::map(_*5,fun::filter((_==0)*(_%2),l))) sol+=i; 
+	//fun::map and fun::filter copy (copy constructor). In this case, fun::filter copies. SLOW
 	duration = std::chrono::system_clock::now() - start;
 	std::cout<<"copy    -> "
 		<<std::setw(12)<<std::setprecision(6)<<sol<<" - "
@@ -54,7 +56,9 @@ int main(int argc, char** argv) {
 	
 	{
 	start = std::chrono::system_clock::now();
-	sol = fun::head(fun::map(_*2,create(size))); //fun::map calls move constructor.
+	sol = 0;
+	for (int i : fun::map(_*5,fun::filter((_==0)*(_%2),create(size)))) sol+=i; 
+	//fun::map and fun::filter move (move constructor).
 	duration = std::chrono::system_clock::now() - start;
 	std::cout<<"move    -> "
 		<<std::setw(12)<<std::setprecision(6)<<sol<<" - "

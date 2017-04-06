@@ -37,10 +37,10 @@ public:
 	const_iterator_local begin_local() const { return const_iterator_local(list.begin(), function);  }
 	const_iterator_local end_local()   const { return const_iterator_local(list.end(), function);  }
 
-	Mapped(Function&& f, List&& l): list(std::forward<List>(l)), function(f) { 
+	Mapped(Function&& f, List&& l): list(std::forward<List>(l)), function(std::forward<Function>(f)) { 
 		//std::cerr<<"map moves list"<<std::endl;   
 	}
-	Mapped(Function&& f, const List& l): list(l), function(f) { 
+	Mapped(Function&& f, const List& l): list(l), function(std::forward<Function>(f)) { 
 		//std::cerr<<"map copies list"<<std::endl;   
 	}
 	Mapped(const Function& f, List&& l): list(std::forward<List>(l)), function(f) {
