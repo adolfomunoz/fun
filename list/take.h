@@ -1,9 +1,9 @@
 #ifndef _FUNCTIONAL_LIST_TAKE_H_
 #define _FUNCTIONAL_LIST_TAKE_H_
 
-#include "../list-core/forward-list.h"
+#include "core/forward-list.h"
 #include "../function/function.h"
-#include "zip.h"
+#include "higher-order/zip.h"
 #include "../function/misc.h"
 #include "../function/flip.h"
 

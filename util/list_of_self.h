@@ -1,13 +1,14 @@
 #ifndef _FUNCTIONAL_LIST_OF_SELF_H_
 #define _FUNCTIONAL_LIST_OF_SELF_H_
 
-#include "../iterator/const_iterator.h"
+//#include "../iterator/const_iterator.h"
 
 namespace fun {
 
 /**
  * \brief Any class that inherits from this becomes also a list in which it is the only element
  */
+/*
 template<typename Self>
 class ListOfSelf
 {
@@ -36,6 +37,7 @@ public:
 
 	using value_type = Self;
 };
+*/
 
 }; //namespace fun
 

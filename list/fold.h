@@ -4,9 +4,8 @@
 #include "item.h"
 #include "../function/function.h"
 #include "../function/misc.h"
-#include "../list/item.h"
 #include "../function/section.h"
-#include "../list-core/forward-list.h"
+#include "core/forward-list.h"
 #include "../util/smart-auto.h"
 
 namespace fun {

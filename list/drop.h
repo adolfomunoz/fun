@@ -2,7 +2,7 @@
 #define _FUNCTIONAL_LIST_DROP_H_
 
 #include "../function/function.h"
-#include "../list-core/list-proxy.h"
+#include "core/list-proxy.h"
 
 namespace fun {
 

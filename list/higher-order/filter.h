@@ -1,8 +1,8 @@
 #ifndef _FUNCTIONAL_FILTER_H_
 #define _FUNCTIONAL_FILTER_H_
 
-#include "../function/function.h"
-#include "../list-core/forward-list.h"
+#include "../../function/function.h"
+#include "../core/forward-list.h"
 #include <utility>
 #include <type_traits>
 #include <memory>

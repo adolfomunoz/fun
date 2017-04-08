@@ -1,7 +1,7 @@
 #ifndef _FUNCTIONAL_RANDOM_H_
 #define _FUNCTIONAL_RANDOM_H_
 
-#include "../iterator/const_iterator.h"
+#include "core/forward-list.h"
 #include "../function/function.h"
 #include <type_traits>
 #include <random>

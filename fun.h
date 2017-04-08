@@ -1,11 +1,11 @@
-#include "list-core/list.h"
-#include "list-core/list-proxy.h"
+#include "list/core/list.h"
+#include "list/core/list-proxy.h"
 
+#include "list/higher-order/map.h"
+#include "list/higher-order/filter.h"
+#include "list/higher-order/zip.h"
 
 #include "list/item.h"
-#include "list/map.h"
-#include "list/filter.h"
-#include "list/zip.h"
 #include "list/comprehension.h"
 #include "list/fold.h"
 #include "list/concatenate.h"

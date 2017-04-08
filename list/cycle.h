@@ -1,7 +1,7 @@
 #ifndef _FUNCTIONAL_LIST_CYCLE_H_
 #define _FUNCTIONAL_LIST_CYCLE_H_
 
-#include "../iterator/const_iterator.h"
+#include "core/forward-list.h"
 #include <memory>
 
 //Maybe we will have new implementations as we expand the API but right now this is

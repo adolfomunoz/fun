@@ -2,8 +2,7 @@
 #define _FUNCTIONAL_EXPLORE_ITERATOR_H_
 
 #include "../function/function.h"
-#include "../list-core/forward-list.h"
-#include "../iterator/const_iterator.h"
+#include "core/forward-list.h"
 #include <type_traits>
 #include <utility>
 #include <memory>

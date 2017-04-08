@@ -1,7 +1,7 @@
 #ifndef _FUNCTIONAL_REPEAT_H_
 #define _FUNCTIONAL_REPEAT_H_
 
-#include "../list-core/forward-list.h"
+#include "core/forward-list.h"
 #include <type_traits>
 
 

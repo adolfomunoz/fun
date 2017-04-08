@@ -1,7 +1,7 @@
 #ifndef _FUNCTIONAL_COMPREHENSION_H_
 #define _FUNCTIONAL_COMPREHENSION_H_
 
-#include "../iterator/const_iterator.h"
+//#include "../iterator/const_iterator.h"
 #include <type_traits>
 #include <tuple>
 #include <functional>
@@ -10,6 +10,7 @@
 
 namespace fun {
 
+/*
 template<typename List1, typename List2, typename Function>
 class Comprehension
 {
@@ -90,12 +91,13 @@ auto comprehensionWith_(Function&& function, List1&& list1, List2&& list2)
 		std::forward<List1>(list1), 
 		std::forward<List2>(list2)); 
 }
-
+*/
 /**************************************
  * fun::API                           *
  **************************************/
-auto comprehensionWith = [] (auto&& p1, auto&& p2, auto&& p3) { return comprehensionWith_(p1, p2, p3); };
-auto comprehension     = [] (auto&& l1, auto&& l2)            { return comprehensionWith_([] (auto o1, auto o2) { return std::make_tuple(o1, o2); }, l1, l2); };
+
+//auto comprehensionWith = [] (auto&& p1, auto&& p2, auto&& p3) { return comprehensionWith_(p1, p2, p3); };
+//auto comprehension     = [] (auto&& l1, auto&& l2)            { return comprehensionWith_([] (auto o1, auto o2) { return std::make_tuple(o1, o2); }, l1, l2); };
 
 
 }; //namespace fun

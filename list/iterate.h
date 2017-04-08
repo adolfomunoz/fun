@@ -1,7 +1,7 @@
 #ifndef _FUNCTIONAL_ITERATE_H_
 #define _FUNCTIONAL_ITERATE_H_
 
-#include "../list-core/forward-list.h"
+#include "core/forward-list.h"
 #include "../function/function.h"
 #include <type_traits>
 

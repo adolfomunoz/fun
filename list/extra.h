@@ -2,7 +2,7 @@
 #define _FUNCTIONAL_EXTRA_H_
 
 #include "fold.h"
-#include "map.h"
+#include "higher-order/map.h"
 #include "concatenate.h"
 #include "../function/compose.h"
 #include "../function/curry.h"

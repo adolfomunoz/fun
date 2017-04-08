@@ -2,7 +2,7 @@
 #define _FUNCTIONAL_SMART_AUTO_H_
 
 #include <memory>
-#include "../list-core/forward-list.h"
+#include "../list/core/forward-list.h"
 
 namespace fun
 {

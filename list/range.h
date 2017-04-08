@@ -1,7 +1,7 @@
 #ifndef _FUNCTIONAL_RANGE_H_
 #define _FUNCTIONAL_RANGE_H_
 
-#include "../list-core/forward-list.h"
+#include "core/forward-list.h"
 
 namespace fun
 {

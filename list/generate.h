@@ -1,12 +1,13 @@
 #ifndef _FUNCTIONAL_GENERATE_H_
 #define _FUNCTIONAL_GENERATE_H_
 
-#include "../iterator/const_iterator.h"
+#include "core/forward-list.h"
 #include <type_traits>
 
 
 namespace fun {
 
+/*
 template<typename Generator>
 class Generated
 {
@@ -42,11 +43,11 @@ template<typename Generator>
 auto generate_(Generator&& generator)
 {	return Generated<typename std::remove_reference<Generator>::type>(
 			std::forward<Generator>(generator));  }
-
+*/
 /**************************************
  * fun::API                           *
  **************************************/
-auto generate = [] (auto&& p1) { return generate_(p1); };
+//auto generate = [] (auto&& p1) { return generate_(p1); };
 
 
 }; //namespace fun

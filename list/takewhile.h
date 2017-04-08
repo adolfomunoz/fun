@@ -1,7 +1,7 @@
 #ifndef _FUNCTIONAL_LIST_TAKEWHILE_H_
 #define _FUNCTIONAL_LIST_TAKEWHILE_H_
 
-#include "../list-core/list-proxy.h"
+#include "core/list-proxy.h"
 #include <memory>
 
 namespace fun {

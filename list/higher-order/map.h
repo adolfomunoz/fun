@@ -1,9 +1,9 @@
 #ifndef _FUNCTIONAL_MAP_H_
 #define _FUNCTIONAL_MAP_H_
 
-#include "../function/function.h"
-#include "../list-core/forward-list.h"
-#include "explore.h"
+#include "../../function/function.h"
+#include "../core/forward-list.h"
+#include "../explore.h"
 #include <type_traits>
 #include <utility>
 #include <memory>
