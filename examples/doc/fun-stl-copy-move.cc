@@ -65,4 +65,19 @@ int main(int argc, char** argv) {
 		<<std::setw(10)<<std::setprecision(6)<<(1.e3*duration.count())<<"ms ("
 		<<std::setw(7)<<std::setprecision(5)<<(100.0*duration.count()/base_duration)<<"%)"<<std::endl;
     }
+	
+	{
+	start = std::chrono::system_clock::now();
+	fun::list<int> l = fun::list_proxy(create(size)); //Move constructor
+	sol = 0;
+//	for (int i : fun::map(_*5,fun::filter((_==0)*(_%2),l))) sol+=i; 
+	for (int i : l) sol+=i; 
+	//l is polymorphic (a bit slower) but does not copy the whole list when used
+	duration = std::chrono::system_clock::now() - start;
+	std::cout<<"poly.   -> "
+		<<std::setw(12)<<std::setprecision(6)<<sol<<" - "
+		<<std::setw(10)<<std::setprecision(6)<<(1.e3*duration.count())<<"ms ("
+		<<std::setw(7)<<std::setprecision(5)<<(100.0*duration.count()/base_duration)<<"%)"<<std::endl;
+    }
+
 }

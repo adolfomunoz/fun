@@ -56,7 +56,7 @@ public:
 
 	template<typename L>
 	ForwardList(L&& l) :
-		base(std::make_shared<L>(l)) 
+		base(std::make_shared<L>(std::forward<L>(l))) 
 	{ static_assert(std::is_base_of<ForwardListPolymorphic<T>, L>::value, 
         			"The list L must be a descendant of ForwardListPolymorphic<T>");
 //                std::cerr<<"ForwardList(L&&) "<<typeid(*base).name()<<std::endl;	

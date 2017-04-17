@@ -23,21 +23,28 @@ public:
 	private:
 		typename List::const_iterator i;
 	public:
-	    void inc() { ++i; }
+	    void inc() { 
+			std::cerr<<&(*(this->i))<<" -> ";
+			++i; 
+			std::cerr<<&(*(this->i))<<" ";
+		}
 	    auto get() const { return (*i); }
-		bool equals(const const_iterator_local& that) const noexcept { return this->i==that.i; }
+		bool equals(const const_iterator_local& that) const noexcept {
+			std::cerr<<&(*(this->i))<<"|"<<&(*(that.i))<<" ";
+			return (this->i)==(that.i); }
 		const_iterator_local(const typename List::const_iterator& _i) : i(_i) { }
 	};
 
 	const_iterator_local begin_local() const { return const_iterator_local(b);  }
 	const_iterator_local end_local()   const { return const_iterator_local(e);  }
 
-	ListProxy(List&& list) : 
-		list(list), b(list.begin()), e(list.end()) {}
+	ListProxy(List&& l) : 
+		list(std::forward<List>(l)), b(list.begin()), e(list.end()) { 
+	}
 	
     //Watch out, this actually copies stuff
-	ListProxy(const List& list) : 
-		list(list), b(list.begin()), e(list.end()) {}
+	ListProxy(const List& l) : 
+		list(l), b(list.begin()), e(list.end()) {}
 };
 
 template<typename List>
