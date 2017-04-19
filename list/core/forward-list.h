@@ -30,12 +30,14 @@ public:
 
 template<typename T>
 class ForwardList {
+	
 	std::shared_ptr<ForwardListPolymorphic<T>> base;
 public:
 	ForwardList() { }
 	
 	ForwardList(const ForwardList<T>& l) :
-		base(l.base->clone()) 
+		//base(l.base->clone())
+		base(l.base) // As the list should not be modified nor deleted, we don't clone it, we just share the pointer.... 
 	{ 
 //                std::cerr<<"ForwardList(const ForwardList<L>&) "<<typeid(*base).name()<<std::endl;	
 	}
@@ -78,7 +80,8 @@ public:
 		return (*this); }
 		
 	ForwardList<T>& operator=(const ForwardList<T>& l) 
-	{	base = l.base->clone();   
+	{	//base = l.base->clone(); 
+	        base = l.base;	// As the list should not be modified nor deleted, we don't clone it, we just share the pointer.... 
 //                std::cerr<<"operator=(const ForwardList<L>&) "<<typeid(*base).name()<<std::endl;	
 		return (*this);  }
 		
@@ -100,15 +103,21 @@ public:
 		const_iterator(const const_iterator& that) : list(that.list), base(that.base->clone())   { }
 		const_iterator(const_iterator&& that)      : list(std::move(that.list)), base(std::move(that.base)) { }
 		const_iterator& operator++()    {  base->inc(); return (*this); }
-		//can't do this one as polymorphic. Do we need it? const_iterator  operator++(int)
-		bool operator==(const const_iterator& that) const { return base->equals(*that.base); }
-		bool operator!=(const const_iterator& that) const { return !(base->equals(*that.base)); }
+		bool operator==(const const_iterator& that) const { return base->equals(*(that.base)); }
+		bool operator!=(const const_iterator& that) const { return !(base->equals(*(that.base))); }
 		T operator*() const { return base->get(); }
 
 		const_iterator& operator=(const const_iterator& that) 
 		{  list=that.list;  base = that.base->clone();   return (*this); } 
 		const_iterator& operator=(const_iterator&& that)      
 		{  list=std::move(that.list);  base = std::move(that.base); return (*this); } 
+
+		const_iterator operator++(int) {
+			const_iterator old = (*this);
+			base->inc();
+			return old;
+		}
+
 	};
 
 	const_iterator begin()  const { return const_iterator(this->base, this->base->make_iterator_begin()); }
@@ -147,7 +156,7 @@ public:
 		T get() const override { return cil.get(); }
 		bool equals(const typename ForwardListPolymorphic<T>::ConstIteratorPolymorphic& t) const override {
 			//This should work in compile time and risky in runtime (but should not happen anything wrong)
-			return cil.equals(static_cast<const const_iterator&>(t).cil);
+			return this->cil.equals(static_cast<const const_iterator&>(t).cil);
 //			try { //Maybe this can be sped up without the exception and with a reinterpret_cast
 //				const const_iterator& that = dynamic_cast<const const_iterator&>(t);
 //				return cil.equals(that.cil);
