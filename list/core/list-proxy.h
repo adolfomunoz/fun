@@ -7,19 +7,18 @@ namespace fun
 {
 
 template<typename List>
-class ListProxy : public ForwardListImpl<ListProxy<List>, typename List::value_type>
+class ListRef : public ForwardListImpl<ListRef<List>, typename List::value_type>
 {
-private:
-	//We copy or move. Watch out with huge std::list or std::vector
-	List list; 
+protected:
 	typename List::const_iterator b;
 	typename List::const_iterator e; //FOR SOME REASON THE ITERATOR TO THE END CHANGES AFTER THE CONSTRUCTOR AND BEFORE INVOKING BEGIN
 
+	ListRef() { } 
 public:
 	using value_type = typename List::value_type;
 	
-	void pop_front() { ++b; }
-	
+	void pop_head() { ++b; }	
+
 	class const_iterator_local {
 	private:
 		typename List::const_iterator i;
@@ -46,15 +45,39 @@ public:
 	const_iterator_local begin_local() const { return const_iterator_local(b);  }
 	const_iterator_local end_local()   const { return const_iterator_local(e);  }
 
-	ListProxy(ListProxy<List>&& l) : list(std::move(l.list)), b(list.begin()), e(list.end()) { }
-	ListProxy(List&& l) : list(std::forward<List>(l)), b(list.begin()), e(list.end())        { } 
+	ListRef(const typename List::const_iterator& b, const typename List::const_iterator& e) : b(b), e(e) { } 
+};
+
+
+template<typename List>
+class ListProxy : public ForwardListImpl<ListProxy<List>, typename List::value_type>
+{
+private:
+	//We copy or move. Watch out with huge std::list or std::vector
+	List list; 
+	ListRef<List> ref;
+
+public:
+	using value_type = typename List::value_type;
+	using const_iterator_local = typename ListRef<List>::const_iterator_local;
 	
+	void pop_head() { ref.pop_head(); }	
+
+	ListProxy(ListProxy<List>&& l) : list(std::move(l.list)), 
+		ref(list.begin(), list.end()) { }
+	ListProxy(List&& l) : list(std::forward<List>(l)),       
+		ref(list.begin(), list.end()) { }
+
         //Watch out, this actually copies stuff
-	ListProxy(const ListProxy<List>& l) : list(l.list), b(list.begin()), e(list.end())       { }
-	ListProxy(const List& l) : list(l), b(list.begin()), e(list.end())                       { }
-	
-	//For list references
-	ListProxy(typename List::const_iterator& b, typename List::const_iterator& e) : b(b), e(e) { } 
+	ListProxy(const ListProxy<List>& l) : list(l.list), 
+		ref(list.begin(), list.end()) { }
+	ListProxy(const List& l) : list(l),
+		ref(list.begin(), list.end()) { }
+
+	const_iterator_local begin_local() const { return ref.begin_local();  }
+	const_iterator_local end_local()   const { return ref.end_local();    }
+
+
 };
 
 template<typename List>
@@ -64,7 +87,7 @@ auto list_proxy(List&& l)
 template<typename List>
 auto list_ref(const List& l) 
 {	auto b = l.begin(); auto e = l.end();
-	return ListProxy<typename std::remove_reference<List>::type>(b, e);    }
+	return ListRef<typename std::remove_reference<List>::type>(b, e);    }
 
 
 

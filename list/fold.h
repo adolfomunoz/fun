@@ -110,7 +110,7 @@ bool any_(const Predicate& p, const List& list)
  * fun::API                           *
  **************************************/
 auto foldl   = function<3>([] (auto&& f, auto&& e, const auto& list) { return foldl_(f,e,list);                });
-auto foldl1  = function<2>([] (auto&& f, auto&& list)                { return foldl(f,head(list),rest(list));  });
+auto foldl1  = function<2>([] (auto&& f, const auto& list)                { return foldl(f,head(list),rest(list_ref(list)));  });
 auto foldr   = function<3>([] (auto&& f, auto&& e, const auto& list) { return foldr_(f,e,list);                });
 auto foldr1  = function<2>([] (auto&& f, const auto& list)           { return foldr1_(f,list);                 });
 auto concat  = function<1>([] (const auto& list)		     { return foldl1(_+_, list); });	

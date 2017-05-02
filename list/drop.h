@@ -12,7 +12,7 @@ namespace fun {
 template<typename List>
 auto drop_(unsigned long n, List&& l) {
 	auto sol = list_proxy(std::forward<List>(l));
-	for (unsigned long i=0; i<n; ++i) sol.pop_front();
+	for (unsigned long i=0; i<n; ++i) sol.pop_head();
 	return sol;
 }
 

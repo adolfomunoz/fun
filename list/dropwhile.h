@@ -13,7 +13,7 @@ template<typename Predicate, typename List>
 auto dropWhile_(const Predicate& predicate, List&& l)
 {
 	auto sol = list_proxy(std::forward<List>(l));
-	while (predicate(sol.front())) sol.pop_front();
+	while (predicate(sol.front())) sol.pop_head();
 	return sol;
 }
 
