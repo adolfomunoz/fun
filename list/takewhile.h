@@ -9,13 +9,13 @@ namespace fun {
 template<typename List, typename Predicate>
 class TakeWhile:  public ForwardListImpl<TakeWhile<List,Predicate>,typename List::value_type>
 {
-    Predicate predicate;
+    	Predicate predicate;
 	List l;
 
 public:
-	TakeWhile(Predicate&& predicate, List&& l) : predicate(predicate), l(l) { }
-	TakeWhile(const Predicate& predicate, List&& l) : predicate(predicate), l(l) { }
-	TakeWhile(Predicate&& predicate, const List& l) : predicate(predicate), l(l) { }
+	TakeWhile(Predicate&& predicate, List&& l) : predicate(std::forward<Predicate>(predicate)), l(std::forward<List>(l)) { }
+	TakeWhile(const Predicate& predicate, List&& l) : predicate(predicate), l(std::forward<List>(l)) { }
+	TakeWhile(Predicate&& predicate, const List& l) : predicate(std::forward<Predicate>(predicate)), l(l) { }
 	TakeWhile(const Predicate& predicate, const List& l) : predicate(predicate), l(l) { }
 
     class const_iterator_local 

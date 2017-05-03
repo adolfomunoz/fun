@@ -47,7 +47,7 @@ int main(int argc, char** argv) {
 	start = std::chrono::system_clock::now();
 	std::list<int> l = create(size); //Move constructor
 	sol = 0;
-    	for (int i : l) if ((i % 2) == 0) sol+=5*i;	
+    	for (int i : l) if ((i % 2) == 0) sol+=5*i;  
 	duration = std::chrono::system_clock::now() - start;
 	base_duration = duration.count();
 	std::cout<<"cpp     -> "

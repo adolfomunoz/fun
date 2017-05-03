@@ -12,30 +12,21 @@ class ListRef : public ForwardListImpl<ListRef<List>, typename List::value_type>
 protected:
 	typename List::const_iterator b;
 	typename List::const_iterator e; //FOR SOME REASON THE ITERATOR TO THE END CHANGES AFTER THE CONSTRUCTOR AND BEFORE INVOKING BEGIN
-
+	
 	ListRef() { } 
 public:
 	using value_type = typename List::value_type;
 	
-	void pop_head() { ++b; }	
+	// void pop_head() { ++b; }  //Absolute useless for drop (because of copying and returning) so we won't use it	
+
 
 	class const_iterator_local {
 	private:
 		typename List::const_iterator i;
 	public:
-	    void inc() { 
-//			std::cerr<<(*(this->i))<<" -> ";
-			++i; 
-//			std::cerr<<(*(this->i))<<std::endl;
-	    }
-
-	    auto get() const { 
-//		   std::cerr<<" ("<<(*i)<<") "; 
-		   return (*i); 
-	    }
-	    
+	    void inc() { ++i; }
+	    auto get() const { return (*i); }
 	    bool equals(const const_iterator_local& that) const noexcept {
-//			std::cerr<<(this->i._M_node)<<" == "<<(that.i._M_node)<<" ";
 			return ((this->i) == (that.i)); 
 	    }
 	    
@@ -61,7 +52,7 @@ public:
 	using value_type = typename List::value_type;
 	using const_iterator_local = typename ListRef<List>::const_iterator_local;
 	
-	void pop_head() { ref.pop_head(); }	
+	//void pop_head() { ref.pop_head(); } //Absolute useless for drop (because of copying and returning) so we won't use it	
 
 	ListProxy(ListProxy<List>&& l) : list(std::move(l.list)), 
 		ref(list.begin(), list.end()) { }

@@ -13,12 +13,12 @@ template<typename List>
 class Take :  public ForwardListImpl<Take<List>,typename List::value_type>
 
 {
-	unsigned long n;
+    unsigned long n;
     List l;
 
 public:
     Take(unsigned long n, const List& l)      : n(n), l(l) { }
-    Take(unsigned long n, List&& l)  noexcept : n(n), l(l) { }
+    Take(unsigned long n, List&& l)  noexcept : n(n), l(std::forward<List>(l)) { }
 
     class const_iterator_local 
     {
@@ -48,8 +48,8 @@ auto take_(unsigned long n, List&& l)
 /**************************************
  * fun::API                           *
  **************************************/
-auto take   = function<2>([] (unsigned long n, auto&& l) { return take_(n, l);   });
-auto take_2   = function<1>([] (unsigned long n) 
+auto take   = function<2>([] (unsigned long n, auto&& l) { return take_(n, std::forward<decltype(l)>(l));   });
+auto take_2 = function<1>([] (unsigned long n) 
 {	return fun::zipWith(fun::flip(fun::constant), fun::range((unsigned long)(1),n));  });
 
 };
