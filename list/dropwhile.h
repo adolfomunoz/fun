@@ -12,9 +12,9 @@ class DropWhile :  public ForwardListImpl<DropWhile<Predicate,List>,typename Lis
 {
     Predicate predicate;
     List l;
-    typename List::const_iterator b;
+    mutable typename List::const_iterator b;
 
-    void setup() { while(predicate(*b)) ++b;  }
+    void setup() const { while(predicate(*b)) ++b;  }
 public:
     DropWhile(Predicate&& predicate, List&& l) : predicate(std::forward<Predicate>(predicate)), l(std::forward<List>(l)), b(this->l.begin()) { setup(); }
     DropWhile(const Predicate& predicate, List&& l) : predicate(predicate), l(std::forward<List>(l)), b(this->l.begin())                     { setup(); }
@@ -35,7 +35,7 @@ public:
 
     using value_type     = typename List::value_type;
 
-    const_iterator_local begin_local() const { return const_iterator_local(b);       }
+    const_iterator_local begin_local() const { if (b==l.begin()) setup(); return const_iterator_local(b);       }
     const_iterator_local end_local()   const { return const_iterator_local(l.end()); }
 };
 

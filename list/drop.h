@@ -12,14 +12,14 @@ class Drop :  public ForwardListImpl<Drop<List>,typename List::value_type>
 {
     unsigned long n;
     List l;
-    typename List::const_iterator b;
+    mutable typename List::const_iterator b;
 
-    void setup() { for (unsigned long i = 0; i<n; ++i) ++b; }
+    void setup() const { for (unsigned long i = 0; i<n; ++i) ++b; }
 public:
-    Drop(unsigned long n, const List& l)      : n(n), l(l), b(this->l.begin())                      { setup(); }
-    Drop(unsigned long n, List&& l)  noexcept : n(n), l(std::forward<List>(l)), b(this->l.begin())  { setup(); }
-    Drop(const Drop& that)                    : n(that.n), l(that.l), b(this->l.begin())            { setup(); }
-    Drop(Drop&& that)                         : n(that.n), l(std::move(that.l)), b(this->l.begin()) { setup(); }
+    Drop(unsigned long n, const List& l)      : n(n), l(l), b(this->l.begin())                      { }
+    Drop(unsigned long n, List&& l)  noexcept : n(n), l(std::forward<List>(l)), b(this->l.begin())  { }
+    Drop(const Drop& that)                    : n(that.n), l(that.l), b(this->l.begin())            { }
+    Drop(Drop&& that)                         : n(that.n), l(std::move(that.l)), b(this->l.begin()) { }
 
     class const_iterator_local 
     {
@@ -33,7 +33,7 @@ public:
 
     using value_type     = typename List::value_type;
 
-    const_iterator_local begin_local() const { return const_iterator_local(b);       }
+    const_iterator_local begin_local() const { if (b==l.begin()) setup(); return const_iterator_local(b);       }
     const_iterator_local end_local()   const { return const_iterator_local(l.end()); }
 };
 
