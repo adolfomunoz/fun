@@ -15,21 +15,6 @@ std::list<int> create(unsigned int size) {
 	return sol;
 }
 
-template<typename L>
-struct Wrapper {
-	typename L::const_iterator b;
-	typename L::const_iterator e;
-	using value_type = typename L::value_type;
-	using const_iterator = typename L::const_iterator;
-
-	Wrapper(const typename L::const_iterator& b, const typename L::const_iterator& e) : b(b), e(e) { }
-	typename L::const_iterator begin() const { return b; }
-	typename L::const_iterator end() const   { return e; }
-};
-
-template<typename L>
-Wrapper<L> wrapper(const L& l) { return Wrapper<L>(l.begin(), l.end()); }
-
 int main(int argc, char** argv) {
 	unsigned int size = 10000;
 	std::chrono::time_point<std::chrono::system_clock> start;
@@ -47,7 +32,7 @@ int main(int argc, char** argv) {
 	start = std::chrono::system_clock::now();
 	std::list<int> l = create(size); //Move constructor
 	sol = 0;
-    	for (int i : l) if ((i % 2) == 0) sol+=5*i;  
+    for (int i : l) if ((i % 2) == 0) sol+=5*i;  
 	duration = std::chrono::system_clock::now() - start;
 	base_duration = duration.count();
 	std::cout<<"cpp     -> "
@@ -59,59 +44,51 @@ int main(int argc, char** argv) {
 	{
 	start = std::chrono::system_clock::now();
 	std::list<int> l = create(size); //Move constructor
-	sol = fun::sum(fun::map(_*5,fun::filter( (_==0)*(_%2),l)));
-//      sol = 0;	
-//	for (int i : fun::map(_*5,fun::filter((_==0)*(_%2),l))) sol+=i; 
+	sol = fun::sum(fun::map(_*5,fun::filter( (_==0)*(_%2),l))); 
 	//fun::map and fun::filter copy (copy constructor). In this case, fun::filter copies. SLOW
 	duration = std::chrono::system_clock::now() - start;
 	std::cout<<"copy    -> "
 		<<std::setw(12)<<std::setprecision(6)<<sol<<" - "
 		<<std::setw(10)<<std::setprecision(6)<<(1.e3*duration.count())<<"ms ("
 		<<std::setw(7)<<std::setprecision(5)<<(100.0*duration.count()/base_duration)<<"%)"<<std::endl;
-        }
+    }
 	
 	{
 	start = std::chrono::system_clock::now();
 	sol = fun::sum(fun::map(_*5,fun::filter( (_==0)*(_%2),create(size))));
-//	sol = 0;
-//	for (int i : fun::map(_*5,fun::filter((_==0)*(_%2),create(size)))) sol+=i; 
 	//fun::map and fun::filter move (move constructor).
 	duration = std::chrono::system_clock::now() - start;
 	std::cout<<"move    -> "
 		<<std::setw(12)<<std::setprecision(6)<<sol<<" - "
 		<<std::setw(10)<<std::setprecision(6)<<(1.e3*duration.count())<<"ms ("
 		<<std::setw(7)<<std::setprecision(5)<<(100.0*duration.count()/base_duration)<<"%)"<<std::endl;
-        }
+    }
 
 
 	{
 	start = std::chrono::system_clock::now();
-	fun::list<int> l = fun::list_proxy(create(size)); //Move constructor
+	fun::list<int> l = create(size); //Move constructor to polymorphic list
 	sol = fun::sum(fun::map(_*5,fun::filter( (_==0)*(_%2),l)));
-//	sol = 0;
-//	for (int i : fun::map(_*5,fun::filter((_==0)*(_%2),l))) sol+=i; 
-	//l is polymorphic (a bit slower) but does not copy the whole list when used
+	//l is polymorphic (slower) but does not copy the whole list when used
 	duration = std::chrono::system_clock::now() - start;
 	std::cout<<"poly.   -> "
 		<<std::setw(12)<<std::setprecision(6)<<sol<<" - "
 		<<std::setw(10)<<std::setprecision(6)<<(1.e3*duration.count())<<"ms ("
 		<<std::setw(7)<<std::setprecision(5)<<(100.0*duration.count()/base_duration)<<"%)"<<std::endl;
-        }
+    }
 
 	{
 	start = std::chrono::system_clock::now();
 	std::list<int> l = create(size);
-	auto rl = fun::list_ref(l); //Reference to list, does not copy. Segfaults if l becomes out of scope or destroyed.
+	auto rl = fun::list_ref(l); 
 	sol = fun::sum(fun::map(_*5,fun::filter( (_==0)*(_%2),rl)));
-//	sol = 0;
-//	for (int i : fun::map(_*5,fun::filter((_==0)*(_%2),rl))) sol+=i; 
-	//l is polymorphic (a bit slower) but does not copy the whole list when used
+    //Reference to list, does not copy. Segfaults if l becomes out of scope or destroyed.
 	duration = std::chrono::system_clock::now() - start;
 	std::cout<<"ref     -> "
 		<<std::setw(12)<<std::setprecision(6)<<sol<<" - "
 		<<std::setw(10)<<std::setprecision(6)<<(1.e3*duration.count())<<"ms ("
 		<<std::setw(7)<<std::setprecision(5)<<(100.0*duration.count()/base_duration)<<"%)"<<std::endl;
-        }
+    }
 
 
 }

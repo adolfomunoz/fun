@@ -1,8 +1,8 @@
 #ifndef _FUNCTIONAL_LIST_DROPWHILE_H_
 #define _FUNCTIONAL_LIST_DROPWHILE_H_
 
-#include "core/list-proxy.h"
-#include "../function/function.h"
+#include "../core/forward-list-impl.h"
+#include "../../function/function.h"
 
 namespace fun {
 	

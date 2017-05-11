@@ -1,7 +1,7 @@
 #ifndef _FUNCTIONAL_LIST_TAKEWHILE_H_
 #define _FUNCTIONAL_LIST_TAKEWHILE_H_
 
-#include "core/list-proxy.h"
+#include "../core/forward-list-impl.h"
 #include <memory>
 
 namespace fun {
@@ -9,7 +9,7 @@ namespace fun {
 template<typename List, typename Predicate>
 class TakeWhile:  public ForwardListImpl<TakeWhile<List,Predicate>,typename List::value_type>
 {
-    	Predicate predicate;
+    Predicate predicate;
 	List l;
 
 public:

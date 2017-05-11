@@ -1,11 +1,12 @@
 #ifndef _FUNCTIONAL_LIST_TAKE_H_
 #define _FUNCTIONAL_LIST_TAKE_H_
 
-#include "core/forward-list.h"
-#include "../function/function.h"
-#include "higher-order/zip.h"
-#include "../function/misc.h"
-#include "../function/flip.h"
+#include "../core/forward-list-impl.h"
+#include "../../function/function.h"
+#include "../higher-order/zip.h"
+#include "../../function/misc.h"
+#include "../../function/flip.h"
+#include "../../list/range.h"
 
 namespace fun {
 
@@ -49,7 +50,7 @@ auto take_(unsigned long n, List&& l)
  * fun::API                           *
  **************************************/
 auto take   = function<2>([] (unsigned long n, auto&& l) { return take_(n, std::forward<decltype(l)>(l));   });
-auto take_2 = function<1>([] (unsigned long n) 
+auto take_zipWith = function<1>([] (unsigned long n) 
 {	return fun::zipWith(fun::flip(fun::constant), fun::range((unsigned long)(1),n));  });
 
 };

@@ -1,8 +1,8 @@
 #ifndef _FUNCTIONAL_LIST_DROP_H_
 #define _FUNCTIONAL_LIST_DROP_H_
 
-#include "../function/function.h"
-#include "core/list-proxy.h"
+#include "../../function/function.h"
+#include "../core/forward-list-impl.h"
 
 namespace fun {
 

@@ -4,7 +4,7 @@
 #include <utility>
 #include <memory>
 #include "../function/function.h"
-#include "drop.h"
+#include "slice/drop.h"
 
 namespace fun {
 
@@ -41,11 +41,11 @@ bool elem_(const typename List::value_type& x, const List& l)
 /**************************************
  * fun::API                           *
  **************************************/
-auto head   = function<1>([] (const auto& l)           { return head_(l);   });
+auto head   = function<1>([] (const auto& l)      { return head_(l);   });
 auto rest   = fun::drop(1); //Seems to be the best implementation
-auto length = function<1>([] (auto&& l)           { return length_(l); });
-auto elem   = function<2>([] (auto&& x, auto&& l) { return elem_(x,l); });
-auto null   = function<1>([] (auto&& l)           { return null_(l);   });
+auto length = function<1>([] (const auto& l)      { return length_(l); });
+auto elem   = function<2>([] (auto&& x, const auto& l) { return elem_(x,l); });
+auto null   = function<1>([] (const auto& l)      { return null_(l);   });
 
 };
 

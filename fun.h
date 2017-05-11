@@ -5,6 +5,11 @@
 #include "list/higher-order/filter.h"
 #include "list/higher-order/zip.h"
 
+#include "list/slice/take.h"
+#include "list/slice/drop.h"
+#include "list/slice/takewhile.h"
+#include "list/slice/dropwhile.h"
+
 #include "list/item.h"
 #include "list/comprehension.h"
 #include "list/fold.h"
@@ -14,10 +19,6 @@
 #include "list/explore.h"
 #include "list/explore-iterator.h"
 #include "list/range.h"
-#include "list/take.h"
-#include "list/drop.h"
-#include "list/takewhile.h"
-#include "list/dropwhile.h"
 #include "list/cycle.h"
 #include "list/generate.h"
 #include "list/iterate.h"
