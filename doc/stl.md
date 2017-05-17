@@ -88,4 +88,4 @@ Note that the returned intermediate data structure holds a reference to `std::li
 
 We are always working on improving the efficiency of our approach. In some cases (move semantics and list refrences) we reach the same performance than the C++ reference (with all optimization flags activated, of course). Note that this is not the case in some compilers (MingGW 6.x, for instance).
 
-If you are using this library, please compile [the whole code](../code/doc/fun-stl-copy-move.cc) and let us know if the performance rate of the four presented approaches (in your system, with your compiler).
+If you are using this library, please compile [the whole code](../examples/doc/fun-stl-copy-move.cc) and let us know if the performance rate of the four presented approaches (in your system, with your compiler).
