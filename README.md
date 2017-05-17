@@ -8,7 +8,7 @@ As it is shown in the examples, the performance is very close to (sometimes even
 ## What this library does not do
 As oposed to Haskell, this library does not do:
 * Pattern matching
-* Full type checking (we would need [concepts](https://en.wikipedia.org/wiki/Concepts_%28C%2B%2B%29) for that. Right now type error report consists of:
+* Full type checking (we would need [concepts](https://en.wikipedia.org/wiki/Concepts_%28C%2B%2B%29) for that). Right now type error report consists of:
     * Huge unreadable C++ template errors.
     * Some static asserts here and there for better error reporting. 
 * Lazy evaluation of everything (just of the lists that are returned by our implemented functions)
@@ -56,6 +56,7 @@ Right now you can find information and examples of:
 * [Functions](doc/functions.md): ways of combining and generating new functions, such as sections, currying or function composition.
 * [Function generators](doc/function_generators.md): functions that generate other functions, such as `flip` or `uncurry`.
 * [Higher order list functions](doc/higher_order.md), such as `map`, `filter` or `zipWith`
+* [STL](doc/stl.md): how to efficiently use data structures from the Standard Template Library within the library.
 
 ## Comparison with other functional libraries
 
