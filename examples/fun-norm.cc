@@ -41,7 +41,7 @@ int main(int argc, char** argv)
 	for (unsigned int i = 0; i<size; ++i)
 		l.push_back(1.0); 
 
-	std::cerr<<"E = "<<e<<" - Size = "<<size<<" - Solution = "<<std::pow(size, 1.0/e)<<std::endl;
+	std::cout<<"E = "<<e<<" - Size = "<<size<<" - Solution = "<<std::setw(7)<<std::setprecision(5)<<std::pow(size, 1.0/e)<<std::endl;
 
 	std::chrono::time_point<std::chrono::system_clock> start;
 	double sol;
@@ -55,14 +55,14 @@ int main(int argc, char** argv)
 		<<std::setw(7)<<std::setprecision(5)<<(100.0*duration.count()/base_duration)<<"%)"<<std::endl;
 
 	start = std::chrono::system_clock::now();
-	sol = norm_fe(l, e);
+	sol = norm_fe(fun::list_ref(l), e);
 	duration = std::chrono::system_clock::now() - start;
 	std::cout<<"As fun definition     -> "<<sol<<" - "<<std::setw(10)<<std::setprecision(6)<<(1.e3*duration.count())<<"ms ("
 		<<std::setw(7)<<std::setprecision(5)<<(100.0*duration.count()/base_duration)<<"%)"<<std::endl; 
 
 	auto norm_fi = fun::flip(fun::pow)(1.0/e) * fun::sum * fun::map(fun::flip(fun::pow)(e));
 	start = std::chrono::system_clock::now();
-	sol = norm_fi(l);
+	sol = norm_fi(fun::list_ref(l));
 	duration = std::chrono::system_clock::now() - start;
 	std::cout<<"As fun awesome        -> "<<sol<<" - "<<std::setw(10)<<std::setprecision(6)<<(1.e3*duration.count())<<"ms ("
 		<<std::setw(7)<<std::setprecision(5)<<(100.0*duration.count()/base_duration)<<"%)"<<std::endl; 

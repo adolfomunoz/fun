@@ -14,25 +14,18 @@ As oposed to Haskell, this library does not do:
 * Lazy evaluation of everything (just of the lists that are returned by our implemented functions)
 
 ## Compiling the examples
-There are several examples:
-* [fun-dot](examples/fun-dot.cc) computes the dot product of two vectors represented by very large `std::list<double>`. It compares the performance of three different implementations of such dot product, including a basic C++ loop, C++ function based on the 'fun' library and a pure `fun`-generated function.
-* [fun-norm](examples/fun-norm.cc) computes the *i-esm* norm.
-* [fun-primes](examples/fun-primes.cc) creates an infinite list of prime numbers and prints part of it using different strategies (`take` and `takeWhile`).
-* Go to the [examples](examples) directory to find more.
-
-You can clone the repository and compile some of the examples (git + gcc) as follows:
+There are several examples inside the folder [examples](examples). You can clone the repository and compile, for instance, the example 'fun-primes' (git + gcc) as follows:
 ```
 git clone https://github.com/adolfomunoz/fun.git
-g++ --std=c++14 -O3 fun/examples/fun-dot.cc    -o fun-dot
-g++ --std=c++14 -O3 fun/examples/fun-norm.cc   -o fun-norm
+
 g++ --std=c++14 -O3 fun/examples/fun-primes.cc -o fun-primes
 ```
 
 There is also a `CMakeLists.txt` if you'd rather use [cmake](https://cmake.org/).
 
-The `-O3` option is recommended for ensuring comparable performance with respect to non-functional approaches to solving the same problems. There is no further dependency apart from a C++14 capable compiler. It has been tested with:
-* clang 3.5 and clang 3.6. There is a weird runtime bug with clang 3.8 that he have not been able to overcome.
-* gcc 4.9.2 and later (and the MinGW64 counterpart)
+The `-O3` option is recommended for ensuring comparable performance with respect to non-functional approaches to solving the same problems. There is no further dependency apart from a C++14 capable compiler. It has been tested (not extensively) with:
+* clang 3.5 up to 4.0.
+* gcc 4.9.2 up to 7.0 (and the MinGW64 counterpart).
 
 ## Usage
 The library is thought as a Haskell clone, focusing on higher order list functions such as `map`, `filter`, `repeat`, `iterate`... 
@@ -45,9 +38,9 @@ auto primes = fun::filter(
 ```
 which is an infinite list of prime numbers, or
 ```
-auto dot = fun::compose(fun::sum, fun::curry(fun::zipWith, _*_));
+auto norm_e = fun::flip(fun::pow)(1.0/e) * fun::sum * fun::map(fun::flip(fun::pow)(e));
 ```
-which is a function that calculates the dot product of two vectors (represented as lists or generally speaking anything iterable).
+which is a function that calculates the e norm of a vector (represented as a list or generally speaking anything iterable).
 
 ## Documentation
 This library is still a work in progress, and its documentation is therefore a work in progress over a work in progress (meaning it is incomplete). As time passes the [doc](doc) folder will be filled.
