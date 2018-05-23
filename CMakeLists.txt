@@ -1,35 +1,76 @@
-cmake_minimum_required(VERSION 2.9)
+cmake_minimum_required(VERSION 3.0.2)
+project(fun)
 
-add_definitions(-mtune=native)
-add_definitions(-Wall)
-add_definitions(-O3)
+###################################################################################
+# COMPILER FLAGS
+###################################################################################
 
-#SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -pg")
-#SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -g -pg")
-#SET(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -g -pg")
+# Set a default build type for single-configuration
+# CMake generators if no build type is set.
+IF(NOT CMAKE_CONFIGURATION_TYPES AND NOT CMAKE_BUILD_TYPE)
+   SET(CMAKE_BUILD_TYPE RelWithDebInfo)
+ENDIF(NOT CMAKE_CONFIGURATION_TYPES AND NOT CMAKE_BUILD_TYPE)
 
-add_definitions(-std=c++14)
-add_executable(fun-dot         examples/fun-dot.cc)
-add_executable(fun-norm        examples/fun-norm.cc)
-add_executable(fun-primes      examples/fun-primes.cc)
-add_executable(fun-random      examples/fun-random.cc)
-add_executable(fun-nspheres    examples/fun-nspheres.cc)
-add_executable(fun-polymorphic examples/fun-polymorphic.cc)
-add_executable(fun-ivp         examples/fun-ivp.cc)
+# Select flags.
+if ( ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang") OR ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU") OR ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Intel") )
+    set(CMAKE_CXX_FLAGS         "-std=c++17 -Wall")
+    set(CMAKE_CXX_FLAGS_DEBUG   "-O0 -g")
+    set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "-O2 -g")
+    set(CMAKE_CXX_FLAGS_RELEASE "-O3 -DNDEBUG -mtune=native")
+    if(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
+       set(CMAKE_CXX_FLAGS         "${CMAKE_CXX_FLAGS} -Dsrandom=srand -Drandom=rand -D_USE_MATH_DEFINES")
+    endif()
+elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
+    message("Using Visual Studio, are you sure?")
+endif()
 
-add_executable(fun-time-map         examples/time/map.cc)
-add_executable(fun-time-filter      examples/time/filter.cc)
-add_executable(fun-time-polymorphic examples/time/polymorphic.cc)
-add_executable(fun-time-take        examples/time/take.cc)
+message(STATUS "Compiler  = ${CMAKE_CXX_COMPILER_ID}")
+message(STATUS "System    = ${CMAKE_SYSTEM_NAME}")
+message(STATUS "Prefix    = ${CMAKE_PREFIX_PATH}")
+message(STATUS "Flags     = ${CMAKE_CXX_FLAGS}")
+message(STATUS "Build     = ${CMAKE_BUILD_TYPE}")
+if ("${CMAKE_BUILD_TYPE}" STREQUAL "Release")
+   message(STATUS "R.Flags   = ${CMAKE_CXX_FLAGS_RELEASE}")
+elseif ("${CMAKE_BUILD_TYPE}" STREQUAL "RelWithDebInfo")
+   message(STATUS "D.Flags   = ${CMAKE_CXX_FLAGS_RELWITHDEBINFO}")
+elseif ("${CMAKE_BUILD_TYPE}" STREQUAL "Debug")
+   message(STATUS "D.Flags   = ${CMAKE_CXX_FLAGS_DEBUG}")
+endif()
 
-add_executable(fun-map         examples/doc/fun-map.cc)
-add_executable(fun-filter      examples/doc/fun-filter.cc)
-add_executable(fun-sections    examples/doc/fun-sections.cc)
-add_executable(fun-composition examples/doc/fun-composition.cc)
-add_executable(fun-currying    examples/doc/fun-currying.cc)
-add_executable(fun-flip        examples/doc/fun-flip.cc)
-add_executable(fun-new-functions examples/doc/fun-new-functions.cc)
-add_executable(fun-currying-2  examples/doc/fun-currying-2.cc)
-add_executable(fun-uncurry     examples/doc/fun-uncurry.cc)
-add_executable(fun-slicing     examples/doc/fun-slicing.cc)
-add_executable(fun-stl-copy-move examples/doc/fun-stl-copy-move.cc)
+##################################################################################
+# PATHS
+##################################################################################
+
+# Path for output executable files
+IF(NOT (IS_DIRECTORY "${fun_SOURCE_DIR}/bin"))
+  file(MAKE_DIRECTORY "${fun_SOURCE_DIR}/bin")
+endif()
+set(EXECUTABLE_OUTPUT_PATH "${fun_SOURCE_DIR}/bin")
+
+# Base include directory
+include_directories(${fun_SOURCE_DIR})
+
+###################################################################################
+# USEFUL FUNCTIONS
+###################################################################################
+function(add_subdirectories_and_compile directory)
+	file(GLOB children ${directory}/*)
+	get_filename_component(dir ${directory} NAME)
+	foreach(fullchild ${children})
+		get_filename_component(child ${fullchild} NAME)
+		if(IS_DIRECTORY ${fullchild})
+			if (EXISTS ${fullchild}/${child}.cc)
+				add_executable(fun-${dir}-${child} ${fullchild}/${child}.cc)
+			else()
+				add_subdirectory(${fullchild})
+			endif()
+		endif()
+	endforeach()
+endfunction(add_subdirectories_and_compile)
+
+###################################################################################
+# TARGETS
+###################################################################################
+
+add_subdirectories_and_compile(main/doc)
+
