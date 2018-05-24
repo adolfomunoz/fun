@@ -104,15 +104,25 @@ auto function(F&& f) {
 	return detail::function_aux_deduction<std::remove_cvref_t<F>>::generate(std::forward<F>(f));
 }
 
+//Special case for 0 parameter functions (can be evaluated and converted to ret (lazy evaluation))
+template<typename F, typename Ret>
+class Function<F,Ret> : public FunctionBase<F> {
+public:
+	using FunctionBase<F>::FunctionBase;
+
+	operator Ret() const { return (this->f)(); }
+};
+
 
 //Special case for 1 parameter functions (can be composed)
 template<typename F, typename Ret, typename Arg>
 class Function<F,Ret,Arg> : public FunctionBase<F> {
 public:
 	using FunctionBase<F>::FunctionBase;
-	
+
+	//Currying (returns a lazy evaluable entity)	
 	Ret operator()(Arg&& arg) const {
-		return (this->f)(std::forward<Arg>(arg));
+		return function<Ret>([f=this->f, &arg] () { return f(std::forward<Arg>(arg)); });
 	}
 	
 	//Function composition with type checking (not generic... yet)
