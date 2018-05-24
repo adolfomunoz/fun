@@ -1,5 +1,5 @@
-#include <fun.h>
 #include <iostream>
+#include <fun.h>
 
 int main(int argc, char** argv) {
 	auto atod = fun::function<double, const char*>(
