@@ -1,6 +1,8 @@
 #pragma once
 
 #include <utility>
+#include <tuple>
+#include <iostream>
 
 
 //This replaces something that will happen in C++20
@@ -37,29 +39,22 @@ public:
 };
 
 
-template<typename F, typename Ret, typename... Args>
-class Function : public FunctionBase<F> {
-public:
-	using FunctionBase<F>::FunctionBase;
-	
-	Ret operator()(Args&&... args) const {
-		return f(std::forward<Args>(args)...);
-	}
-};
+template<typename F, typename... Args>
+class Function : public FunctionBase<F> { };
 
 namespace detail {
 	template<typename F> //Callable object considered by default
-	struct function_aux_deduction { 
+	struct function_deduction { 
 		static constexpr auto generate(F&& f) {
-			return function_aux_deduction<decltype(&F::operator())>::generate(std::forward<F>(f));
+			return function_deduction<decltype(&F::operator())>::generate(std::forward<F>(f));
 		}
 		static constexpr auto generate(const F& f) {
-			return function_aux_deduction<decltype(&F::operator())>::generate(f);
+			return function_deduction<decltype(&F::operator())>::generate(f);
 		}
 	};
 
 	template<typename Ret, typename... Args>
-	struct function_aux_deduction<Ret (Args...)> {
+	struct function_deduction<Ret (Args...)> {
 		template<typename F>
 		static constexpr auto generate(const F& f) { 
 			return Function<const std::remove_cvref_t<F>&,Ret,Args...>(f); 
@@ -67,41 +62,69 @@ namespace detail {
 	};
 
 	template<typename Class, typename Ret, typename... Args>
-	struct function_aux_deduction<Ret (Class::*)(Args...) const> {
+	struct function_deduction<Ret (Class::*)(Args...) const> {
 		template<typename F>
 		static constexpr auto generate(F&& f) { 
 			return Function<std::remove_cvref_t<F>,Ret,Args...>(std::forward<F>(f)); 
 		}
 	};
+	
+	template<typename T, std::size_t... I>
+	auto tuple_elements(const T& t, std::index_sequence<I...>) {
+		return std::tuple(std::get<I>(t)...);
+	}
+	
+	template<typename... Args>
+	auto tuple_reorder(const std::tuple<Args...>& t) {
+		return std::tuple_cat(std::tuple(std::get<sizeof...(Args)-1>(t)),
+			tuple_elements(t, std::make_index_sequence<sizeof...(Args)-1>{}));
+	}
 
-	template<typename F, typename Ret, typename... Args> 
-	struct function_aux { 
-		static constexpr auto generate(F&& f) {
-			return Function<std::remove_cvref_t<F>,Ret,Args...>(std::forward<F>(f)); 
-		}
-		static constexpr auto generate(const F& f) {
-			return Function<std::remove_cvref_t<F>,Ret,Args...>(f); 
-		}
-
+	template<typename F, typename T>
+	struct function_from_tuple { };
+	
+	template<typename F, typename... Args>
+	struct function_from_tuple<F,std::tuple<Args...>> {
+		using type = Function<F,Args...>;
+	};
+	
+	template<typename F, typename... Args>
+	struct function_reorder {
+		using type = typename function_from_tuple<F,
+			decltype(tuple_reorder(std::declval<std::tuple<Args...>>()))>::type;
+	};
+	
+	template<typename F, typename Ret>
+	struct function_reorder<F,Ret> {
+		using type = Function<F,Ret>;
 	};
 
-	template<typename Ret, typename... Args>
-	struct function_aux<Ret (Args...), Ret, Args...> {
+			
+	template<typename... Args> 
+	struct function_aux { 
 		template<typename F>
-		static constexpr auto generate(const F& f) { 
-			return Function<const std::remove_cvref_t<F>&,Ret,Args...>(f); 
+		static constexpr auto generate(F&& f) {
+			return (typename function_reorder<std::remove_cvref_t<F>,Args...>::type)(std::forward<F>(f)); 
 		}
-	};	
+		template<typename F>
+		static constexpr auto generate(const F& f) {
+			return (typename function_reorder<std::remove_cvref_t<F>,Args...>::type)(f); 
+		}
+		template<typename R, typename... A>
+		static constexpr auto generate(R f(A...)) {
+			return (typename function_reorder<decltype(f),Args...>::type)(f); 			
+		}
+	};
 };
 
-template<typename Ret, typename... Args, typename F>
+template<typename A1, typename... Args, typename F>
 auto function(F&& f) {
-	return detail::function_aux<std::remove_cvref_t<F>, Ret, Args...>::generate(std::forward<F>(f));
+	return detail::function_aux<A1, Args...>::generate(std::forward<F>(f));
 }
 
 template<typename F>
 auto function(F&& f) {
-	return detail::function_aux_deduction<std::remove_cvref_t<F>>::generate(std::forward<F>(f));
+	return detail::function_deduction<std::remove_cvref_t<F>>::generate(std::forward<F>(f));
 }
 
 //Special case for 0 parameter functions (can be evaluated and converted to ret (lazy evaluation))
@@ -113,30 +136,22 @@ public:
 	operator Ret() const { return (this->f)(); }
 };
 
-
-//Special case for 1 parameter functions (can be composed)
-template<typename F, typename Ret, typename Arg>
-class Function<F,Ret,Arg> : public FunctionBase<F> {
+//General case for 1 or more parameters
+template<typename F, typename Ret, typename Arg, typename... Args>
+class Function<F,Ret,Arg,Args...> : public FunctionBase<F> {
 public:
 	using FunctionBase<F>::FunctionBase;
-
-	//Currying (returns a lazy evaluable entity)	
-	Ret operator()(Arg&& arg) const {
-		return function<Ret>([f=this->f, &arg] () { return f(std::forward<Arg>(arg)); });
+	
+	auto operator()(Arg&& arg) const { //Currying
+		return function<Args...,Ret>(
+			[f=this->f, a=std::forward<Arg>(arg)] (Args&&... args) { 
+				return f(a, std::forward<Args>(args)...); });
 	}
 	
-	//Function composition with type checking (not generic... yet)
-	template<typename F2, typename Arg2>
-	auto operator*(Function<F2,Arg,Arg2>&& that) {
-		return function<Ret,Arg2>([f=*this,t=std::forward(that)] 
-			(Arg2&& arg2) { return f(t(std::forward<Arg2>(arg2))); });  
-	}
-	
-	//Function composition with type checking (not generic... yet)
-	template<typename F2, typename Arg2>
-	auto operator*(const Function<F2,Arg,Arg2>& that) {
-		return function<Ret,Arg2>([f=*this,t=that] 
-			(Arg2&& arg2) { return f(t(std::forward<Arg2>(arg2))); });  
+	template<typename A2, typename... Args2>
+	auto operator()(Arg&& arg, A2&& a2, Args2&&... args2) const { // Full call
+		return ((*this)(std::forward<Arg>(arg)))
+			(std::forward<A2>(a2),std::forward<Args2>(args2)...);
 	}
 };
 
