@@ -136,6 +136,74 @@ public:
 	operator Ret() const { return (this->f)(); }
 };
 
+template<typename F, typename Arg, typename... Args>
+class Curried {
+	F f;
+	Arg arg;
+public:
+	Curried(F&& f, Arg&& arg) : f(std::forward<F>(f)), arg(std::forward<Arg>(arg)) { }
+	Curried(const F& f, Arg&& arg) : f(f), arg(std::forward<Arg>(arg))             { }
+	Curried(F&& f, const Arg& arg) : f(std::forward<F>(f)), arg(arg)               { }
+	Curried(const F& f, const Arg& arg) : f(f), arg(arg)                           { }
+
+	auto operator()(Args&&... args) const {
+		return f(arg, std::forward<Args>(args)...);
+	}
+
+	auto operator()(const Args&... args) const {
+		return f(arg, args...);
+	}
+};
+
+template<typename F, typename Arg>
+class Curried<F,Arg> {
+	F f;
+	Arg arg;
+public:
+	Curried(F&& f, Arg&& arg) : f(std::forward<F>(f)), arg(std::forward<Arg>(arg)) { }
+	Curried(const F& f, Arg&& arg) : f(f), arg(std::forward<Arg>(arg))             { }
+	Curried(F&& f, const Arg& arg) : f(std::forward<F>(f)), arg(arg)               { }
+	Curried(const F& f, const Arg& arg) : f(f), arg(arg)                           { }
+
+	auto operator()() const {
+		return f(arg);
+	}
+};
+
+
+template<typename F, typename Arg, typename... Args>
+class Curried<F&,Arg,Args...> {
+	F& f;
+	Arg arg;
+public:
+	Curried(const F& f, Arg&& arg) : f(f), arg(std::forward<Arg>(arg))             { }
+	Curried(const F& f, const Arg& arg) : f(f), arg(arg)                           { }
+
+	auto operator()(Args&&... args) const {
+		return f(arg, std::forward<Args>(args)...);
+	}
+
+	auto operator()(const Args&... args) const {
+		return f(arg, args...);
+	}
+};
+
+template<typename F, typename Arg>
+class Curried<F&,Arg> {
+	F& f;
+	Arg arg;
+public:
+	Curried(const F& f, Arg&& arg) : f(f), arg(std::forward<Arg>(arg))             { }
+	Curried(const F& f, const Arg& arg) : f(f), arg(arg)                           { }
+
+	auto operator()() const {
+		return f(arg);
+	}
+};
+
+
+
+
 //General case for 1 or more parameters
 template<typename F, typename Ret, typename Arg, typename... Args>
 class Function<F,Ret,Arg,Args...> : public FunctionBase<F> {
@@ -143,9 +211,11 @@ public:
 	using FunctionBase<F>::FunctionBase;
 	
 	auto operator()(Arg&& arg) const { //Currying
-		return function<Args...,Ret>(
-			[f=this->f, a=std::forward<Arg>(arg)] (Args&&... args) { 
-				return f(a, std::forward<Args>(args)...); });
+		return function<Args...,Ret>(Curried<decltype(this->f),std::remove_cvref_t<Arg>, Args...>(this->f,std::forward<Arg>(arg)));
+	}
+
+	auto operator()(const Arg& arg) const { //Currying
+		return function<Args...,Ret>(Curried<decltype(this->f),std::remove_cvref_t<Arg>, Args...>(this->f,arg));
 	}
 	
 	template<typename A2, typename... Args2>
