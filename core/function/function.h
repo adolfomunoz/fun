@@ -3,6 +3,7 @@
 #include <utility>
 #include <tuple>
 #include <iostream>
+#include "generic.h"
 
 
 //This replaces something that will happen in C++20
@@ -140,6 +141,22 @@ public:
 	operator Ret() const { return (this->f)(); }
 };
 
+//Special case for 0 parameter functions (can be evaluated and converted to ret (lazy evaluation)). If we reach this point and it is still generic, we deduce the type from the function call
+template<typename F, std::size_t I>
+class Function<F,Generic<I>> : public FunctionBase<F> {
+public:
+	using FunctionBase<F>::FunctionBase;
+	using Ret = decltype(std::declval<F>()());
+	
+	operator Ret() const { return (this->f)(); }
+};
+
+//When outputting a lazy-evaluable function, we actually evaluate it
+template<typename F, typename Ret>
+std::ostream& operator<<(std::ostream& os, const Function<F,Ret>& f) {
+	os<<f.impl()(); return os;
+}
+
 template<typename F, typename Arg, typename... Args>
 class Curried {
 	F f;
@@ -230,6 +247,45 @@ public:
 	}
 	
 	//A1 instead of Arg in order to enable lazy evaluation of parameters.
+	template<typename A1, typename A2, typename... Args2>
+	auto operator()(A1&& arg, A2&& a2, Args2&&... args2) const { // Full call
+		return ((*this)(std::forward<A1>(arg)))
+			(std::forward<A2>(a2),std::forward<Args2>(args2)...);
+	}
+};
+
+//General case for 1 or more parameters with a generic argument
+template<typename F, typename Ret, std::size_t I, typename... Args>
+class Function<F,Ret,Generic<I>,Args...> : public FunctionBase<F> {
+public:
+	using FunctionBase<F>::FunctionBase;
+	
+	template<typename Arg> //It is indeed generic
+	auto operator()(Arg&& arg) const { //Currying
+		//We would need to replace Generic<I> with Arg in Args... and Ret
+		return function<Args...,Ret>(Curried<decltype(this->f),std::remove_cvref_t<Arg>, Args...>(this->f,std::forward<Arg>(arg)));
+	}
+
+	template<typename Arg> //It is indeed generic	
+	auto operator()(const Arg& arg) const { //Currying
+		//We would need to replace Generic<I> with Arg in Args... and Ret
+		return function<Args...,Ret>(Curried<decltype(this->f),std::remove_cvref_t<Arg>, Args...>(this->f,arg));
+	}
+	
+	template<typename FArg, typename Arg> // It is indeed generic
+	auto operator()(Function<FArg,Arg>&& arg) const {//Currying with lazy evaluation
+		//We would need to replace Generic<I> with Arg in Args... and Ret
+		return function<Args...,Ret>(Curried<decltype(this->f),std::remove_cvref_t<Function<FArg,Arg>>, Args...>(this->f,std::forward<Function<FArg,Arg>>(arg)));	
+	}
+	
+	template<typename FArg, typename Arg> // It is indeed generic
+	auto operator()(const Function<FArg,Arg>& arg) const {//Currying with lazy evaluation
+		//We would need to replace Generic<I> with Arg in Args... and Ret
+		return function<Args...,Ret>(Curried<decltype(this->f),std::remove_cvref_t<Function<FArg,Arg>>, Args...>(this->f,arg));	
+	}
+	
+	//A1 instead of Arg in order to enable lazy evaluation of parameters, although
+	// it does not matter here in the generic version
 	template<typename A1, typename A2, typename... Args2>
 	auto operator()(A1&& arg, A2&& a2, Args2&&... args2) const { // Full call
 		return ((*this)(std::forward<A1>(arg)))
