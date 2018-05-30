@@ -26,6 +26,9 @@ protected:
 public:
 	constexpr FunctionBase(F&& f)      : f(std::forward<F>(f)) { }
 	constexpr FunctionBase(const F& f) : f(f) { }
+
+	//Implementation details, do not use
+	const F& impl() const { return f; }
 };
 
 //Handles construction of functions, specialization for function pointers (standard C++ functions)
@@ -36,6 +39,7 @@ protected:
 	F&   f;
 public:
 	constexpr FunctionBase(const F& f) : f(f) { }
+	const F& impl() const { return f; }
 };
 
 
