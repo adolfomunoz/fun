@@ -205,9 +205,6 @@ public:
 	}
 };
 
-
-
-
 //General case for 1 or more parameters
 template<typename F, typename Ret, typename Arg, typename... Args>
 class Function<F,Ret,Arg,Args...> : public FunctionBase<F> {
@@ -222,9 +219,20 @@ public:
 		return function<Args...,Ret>(Curried<decltype(this->f),std::remove_cvref_t<Arg>, Args...>(this->f,arg));
 	}
 	
-	template<typename A2, typename... Args2>
-	auto operator()(Arg&& arg, A2&& a2, Args2&&... args2) const { // Full call
-		return ((*this)(std::forward<Arg>(arg)))
+	template<typename FArg>
+	auto operator()(Function<FArg,Arg>&& arg) const {//Currying with lazy evaluation
+		return function<Args...,Ret>(Curried<decltype(this->f),std::remove_cvref_t<Function<FArg,Arg>>, Args...>(this->f,std::forward<Function<FArg,Arg>>(arg)));	
+	}
+	
+	template<typename FArg>
+	auto operator()(const Function<FArg,Arg>& arg) const {//Currying with lazy evaluation
+		return function<Args...,Ret>(Curried<decltype(this->f),std::remove_cvref_t<Function<FArg,Arg>>, Args...>(this->f,arg));	
+	}
+	
+	//A1 instead of Arg in order to enable lazy evaluation of parameters.
+	template<typename A1, typename A2, typename... Args2>
+	auto operator()(A1&& arg, A2&& a2, Args2&&... args2) const { // Full call
+		return ((*this)(std::forward<A1>(arg)))
 			(std::forward<A2>(a2),std::forward<Args2>(args2)...);
 	}
 };

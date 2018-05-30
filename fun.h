@@ -1,4 +1,4 @@
-#include "function/function.h"
-#include "function/compose.h"
+#include "core/function/function.h"
+#include "core/function/compose.h"
 
 
