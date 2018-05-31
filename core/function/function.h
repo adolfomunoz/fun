@@ -104,7 +104,39 @@ namespace detail {
 		using type = Function<F,Ret>;
 	};
 
-			
+	template<std::size_t I, typename NewType, typename Arg, typename... Args>
+	struct tuple_replace_generic {
+		using type = decltype(std::tuple_cat(std::declval<std::tuple<Arg>>(),
+				std::declval<typename tuple_replace_generic<I,NewType,Args...>::type>()));
+	};
+	
+	template<std::size_t I, typename NewType, typename Arg>
+	struct tuple_replace_generic<I, NewType, Arg> {
+		using type = std::tuple<Arg>;
+	};
+	
+	template<std::size_t I, typename NewType, typename... Args>
+	struct tuple_replace_generic<I,NewType,Generic<I>,Args...> {
+		using type = decltype(std::tuple_cat(std::declval(std::tuple<NewType>()),
+				tuple_replace_generic<I,NewType,Args...>::type));		
+	};	
+
+	template<std::size_t I, typename NewType>
+	struct tuple_replace_generic<I, NewType, Generic<I>> {
+		using type = std::tuple<NewType>;
+	};
+		
+	template<typename F, std::size_t I, typename NewType, typename Arg, typename... Args>
+	struct function_replace_generic {
+		using type = typename function_from_tuple<F, decltype(tuple_reorder(std::declval<typename tuple_replace_generic<I,NewType,Arg,Args...>::type>()))>::type;
+	};
+
+	template<typename F, std::size_t I, typename NewType, typename Arg>
+	struct function_replace_generic<F,I,NewType,Arg> {
+		using type = typename function_from_tuple<F, typename tuple_replace_generic<I,NewType,Arg>::type>::type;
+	};
+
+		
 	template<typename... Args> 
 	struct function_aux { 
 		template<typename F>
@@ -120,46 +152,30 @@ namespace detail {
 			return (typename function_reorder<decltype(f),Args...>::type)(f); 			
 		}
 	};
-	
-	template<std::size_t I, typename NewType, typename Arg, typename... Args>
-	auto tuple_replace_generic(const std::tuple<Arg, Args...>& t) {
-		return std::tuple_cat(std::tuple(std::get<sizeof...(Args)-1>(t)),
-			tuple_elements(t, std::make_index_sequence<sizeof...(Args)-1>{}));
-	}
-	
-	template<std::size_t I, typename NewType, typename... Args>
-	auto tuple_replace_generic(const std::tuple<Generic<I>,Args...>& t) {
-		return std::tuple_cat(std::tuple(std::get<sizeof...(Args)-1>(t)),
-			tuple_elements(t, std::make_index_sequence<sizeof...(Args)-1>{}));
-	}
-	
-	template<std::size_t I, typename NewType, typename Arg, typename Args...>
-	struct tuple_replace_generic {
-		using type = decltype(std::tuple_cat(std::declval(std::tuple<Arg>()),
-				tuple_replace_generic<I,NewType,Args...>::type));
-	};
-	
-	template<std::size_t I, typename NewType, typename Arg>
-	struct tuple_replace_generic<I, NewType, Arg> {
-		using type = std::tuple<Arg>;
-	};
-	
-	template<std::size_t I, typename NewType, typename Args...>
-	struct tuple_replace_generic<I,NewType,Generic<I>,Args...> {
-		using type = decltype(std::tuple_cat(std::declval(std::tuple<NewType>()),
-				tuple_replace_generic<I,NewType,Args...>::type));		
-	};	
 
-	template<std::size_t I, typename NewType>
-	struct tuple_replace_generic<I, NewType, Generic<I>> {
-		using type = std::tuple<NewType>;
+	template<std::size_t I, typename NewType, typename... Args> 
+	struct function_replace_aux { 
+		template<typename F>
+		static constexpr auto generate(F&& f) {
+			return (typename function_replace_generic<std::remove_cvref_t<F>,I, NewType,Args...>::type)(std::forward<F>(f)); 
+		}
+		template<typename F>
+		static constexpr auto generate(const F& f) {
+			return (typename function_replace_generic<std::remove_cvref_t<F>,I, NewType,Args...>::type)(f); 
+		}
+		template<typename R, typename... A>
+		static constexpr auto generate(R f(A...)) {
+			return (typename function_replace_generic<decltype(f),I, NewType,Args...>::type)(f); 			
+		}
 	};
-		
-	template<std::size_t I, typename NewType, typename Arg, typename Args...>
-	struct fuction_replace_generic {
-		
-	};
+
+	
 };
+
+template<std::size_t I, typename NewType, typename A1, typename... Args, typename F>
+auto function_replace(F&& f) {
+	return detail::function_replace_aux<I, NewType, A1, Args...>::generate(std::forward<F>(f));
+}
 
 template<typename A1, typename... Args, typename F>
 auto function(F&& f) {
@@ -196,7 +212,7 @@ std::ostream& operator<<(std::ostream& os, const Function<F,Ret>& f) {
 	os<<f.impl()(); return os;
 }
 
-template<typename F, typename Arg, typename... Args>
+template<typename F, typename Arg>
 class Curried {
 	F f;
 	Arg arg;
@@ -206,15 +222,19 @@ public:
 	Curried(F&& f, const Arg& arg) : f(std::forward<F>(f)), arg(arg)               { }
 	Curried(const F& f, const Arg& arg) : f(f), arg(arg)                           { }
 
+	template<typename... Args>
 	auto operator()(Args&&... args) const {
 		return f(arg, std::forward<Args>(args)...);
 	}
 
+/*
+	template<typename... Args>
 	auto operator()(const Args&... args) const {
 		return f(arg, args...);
-	}
+	}*/
 };
 
+/*
 template<typename F, typename Arg>
 class Curried<F,Arg> {
 	F f;
@@ -229,25 +249,29 @@ public:
 		return f(arg);
 	}
 };
+*/
 
 
-template<typename F, typename Arg, typename... Args>
-class Curried<F&,Arg,Args...> {
+template<typename F, typename Arg>
+class Curried<F&,Arg> {
 	F& f;
 	Arg arg;
 public:
 	Curried(const F& f, Arg&& arg) : f(f), arg(std::forward<Arg>(arg))             { }
 	Curried(const F& f, const Arg& arg) : f(f), arg(arg)                           { }
 
+	template<typename... Args>
 	auto operator()(Args&&... args) const {
 		return f(arg, std::forward<Args>(args)...);
 	}
-
+/*
+	template<typename... Args>
 	auto operator()(const Args&... args) const {
 		return f(arg, args...);
-	}
+	}*/
 };
 
+/*
 template<typename F, typename Arg>
 class Curried<F&,Arg> {
 	F& f;
@@ -260,6 +284,7 @@ public:
 		return f(arg);
 	}
 };
+*/
 
 //General case for 1 or more parameters
 template<typename F, typename Ret, typename Arg, typename... Args>
@@ -268,21 +293,21 @@ public:
 	using FunctionBase<F>::FunctionBase;
 	
 	auto operator()(Arg&& arg) const { //Currying
-		return function<Args...,Ret>(Curried<decltype(this->f),std::remove_cvref_t<Arg>, Args...>(this->f,std::forward<Arg>(arg)));
+		return function<Args...,Ret>(Curried<decltype(this->f),std::remove_cvref_t<Arg>>(this->f,std::forward<Arg>(arg)));
 	}
 
 	auto operator()(const Arg& arg) const { //Currying
-		return function<Args...,Ret>(Curried<decltype(this->f),std::remove_cvref_t<Arg>, Args...>(this->f,arg));
+		return function<Args...,Ret>(Curried<decltype(this->f),std::remove_cvref_t<Arg>>(this->f,arg));
 	}
 	
 	template<typename FArg>
 	auto operator()(Function<FArg,Arg>&& arg) const {//Currying with lazy evaluation
-		return function<Args...,Ret>(Curried<decltype(this->f),std::remove_cvref_t<Function<FArg,Arg>>, Args...>(this->f,std::forward<Function<FArg,Arg>>(arg)));	
+		return function<Args...,Ret>(Curried<decltype(this->f),std::remove_cvref_t<Function<FArg,Arg>>>(this->f,std::forward<Function<FArg,Arg>>(arg)));	
 	}
 	
 	template<typename FArg>
 	auto operator()(const Function<FArg,Arg>& arg) const {//Currying with lazy evaluation
-		return function<Args...,Ret>(Curried<decltype(this->f),std::remove_cvref_t<Function<FArg,Arg>>, Args...>(this->f,arg));	
+		return function<Args...,Ret>(Curried<decltype(this->f),std::remove_cvref_t<Function<FArg,Arg>>>(this->f,arg));	
 	}
 	
 	//A1 instead of Arg in order to enable lazy evaluation of parameters.
@@ -302,25 +327,25 @@ public:
 	template<typename Arg> //It is indeed generic
 	auto operator()(Arg&& arg) const { //Currying
 		//We would need to replace Generic<I> with Arg in Args... and Ret
-		return function<Args...,Ret>(Curried<decltype(this->f),std::remove_cvref_t<Arg>, Args...>(this->f,std::forward<Arg>(arg)));
+		return function_replace<I,Arg,Args...,Ret>(Curried<decltype(this->f),std::remove_cvref_t<Arg>>(this->f,std::forward<Arg>(arg)));
 	}
 
 	template<typename Arg> //It is indeed generic	
 	auto operator()(const Arg& arg) const { //Currying
 		//We would need to replace Generic<I> with Arg in Args... and Ret
-		return function<Args...,Ret>(Curried<decltype(this->f),std::remove_cvref_t<Arg>, Args...>(this->f,arg));
+		return function_replace<I,Arg,Args...,Ret>(Curried<decltype(this->f),std::remove_cvref_t<Arg>>(this->f,arg));
 	}
 	
 	template<typename FArg, typename Arg> // It is indeed generic
 	auto operator()(Function<FArg,Arg>&& arg) const {//Currying with lazy evaluation
 		//We would need to replace Generic<I> with Arg in Args... and Ret
-		return function<Args...,Ret>(Curried<decltype(this->f),std::remove_cvref_t<Function<FArg,Arg>>, Args...>(this->f,std::forward<Function<FArg,Arg>>(arg)));	
+		return function_replace<I,Arg,Args...,Ret>(Curried<decltype(this->f),std::remove_cvref_t<Function<FArg,Arg>>>(this->f,std::forward<Function<FArg,Arg>>(arg)));	
 	}
 	
 	template<typename FArg, typename Arg> // It is indeed generic
 	auto operator()(const Function<FArg,Arg>& arg) const {//Currying with lazy evaluation
 		//We would need to replace Generic<I> with Arg in Args... and Ret
-		return function<Args...,Ret>(Curried<decltype(this->f),std::remove_cvref_t<Function<FArg,Arg>>, Args...>(this->f,arg));	
+		return function_replace<I,Arg, Args...,Ret>(Curried<decltype(this->f),std::remove_cvref_t<Function<FArg,Arg>>>(this->f,arg));	
 	}
 	
 	//A1 instead of Arg in order to enable lazy evaluation of parameters, although

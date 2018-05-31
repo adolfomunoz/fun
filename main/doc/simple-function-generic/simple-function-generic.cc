@@ -15,6 +15,8 @@ int main(int argc, char** argv) {
 	ToString  cob;
 	auto fun_tostring3 = fun::function<a, std::string>(cob);	
 
+	std::cout<<"fun_tostring :: "<<fun::type<decltype(fun_tostring1)>::name()<<std::endl;
+	
 	std::cout<<fun_tostring1(42)<<" "<<fun_tostring1(3.14159276)<<" | "<<
 		   fun_tostring2(42)<<" "<<fun_tostring2(3.14159276)<<" | "<<
 		   fun_tostring3(42)<<" "<<fun_tostring3(3.14159276)<<std::endl;
