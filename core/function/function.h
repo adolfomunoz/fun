@@ -120,6 +120,45 @@ namespace detail {
 			return (typename function_reorder<decltype(f),Args...>::type)(f); 			
 		}
 	};
+	
+	template<std::size_t I, typename NewType, typename Arg, typename... Args>
+	auto tuple_replace_generic(const std::tuple<Arg, Args...>& t) {
+		return std::tuple_cat(std::tuple(std::get<sizeof...(Args)-1>(t)),
+			tuple_elements(t, std::make_index_sequence<sizeof...(Args)-1>{}));
+	}
+	
+	template<std::size_t I, typename NewType, typename... Args>
+	auto tuple_replace_generic(const std::tuple<Generic<I>,Args...>& t) {
+		return std::tuple_cat(std::tuple(std::get<sizeof...(Args)-1>(t)),
+			tuple_elements(t, std::make_index_sequence<sizeof...(Args)-1>{}));
+	}
+	
+	template<std::size_t I, typename NewType, typename Arg, typename Args...>
+	struct tuple_replace_generic {
+		using type = decltype(std::tuple_cat(std::declval(std::tuple<Arg>()),
+				tuple_replace_generic<I,NewType,Args...>::type));
+	};
+	
+	template<std::size_t I, typename NewType, typename Arg>
+	struct tuple_replace_generic<I, NewType, Arg> {
+		using type = std::tuple<Arg>;
+	};
+	
+	template<std::size_t I, typename NewType, typename Args...>
+	struct tuple_replace_generic<I,NewType,Generic<I>,Args...> {
+		using type = decltype(std::tuple_cat(std::declval(std::tuple<NewType>()),
+				tuple_replace_generic<I,NewType,Args...>::type));		
+	};	
+
+	template<std::size_t I, typename NewType>
+	struct tuple_replace_generic<I, NewType, Generic<I>> {
+		using type = std::tuple<NewType>;
+	};
+		
+	template<std::size_t I, typename NewType, typename Arg, typename Args...>
+	struct fuction_replace_generic {
+		
+	};
 };
 
 template<typename A1, typename... Args, typename F>
