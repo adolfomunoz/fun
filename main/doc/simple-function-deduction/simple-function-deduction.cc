@@ -14,7 +14,7 @@ int main(int argc, char** argv) {
 	Sqr  cob;
 	auto fun_sqr5 = fun::function(cob);
 
-	std::cout<<"fun_sqr :: "<<fun::type<decltype(fun_sqr1)>::name()<<std::endl;
+	std::cout<<"fun_sqr :: "<<fun::typeinfo<decltype(fun_sqr1)>::name()<<std::endl;
 
 	std::cout<<fun_sqr1(2)<<" "<<
 		   fun_sqr2(2)<<" "<<

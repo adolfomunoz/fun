@@ -24,23 +24,23 @@ public:
 
 //Function composition with type checking (not generic... yet)
 template<typename F1, typename F2, typename A, typename B, typename C>
-auto operator*(Function<F1,C,B>&& f1, Function<F2,B,A>&& f2) {
+auto operator*(Function_<F1,C,B>&& f1, Function_<F2,B,A>&& f2) {
 	return function<A,C>(Composed<F1,F2>(std::forward(f1.impl()), std::forward(f2.impl())));
 }
 
 //Function composition with type checking (not generic... yet)
 template<typename F1, typename F2, typename A, typename B, typename C>
-auto operator*(const Function<F1,C,B>& f1, Function<F2,B,A>&& f2) {
+auto operator*(const Function_<F1,C,B>& f1, Function_<F2,B,A>&& f2) {
 	return function<A,C>(Composed<F1,F2>(f1.impl(), std::forward(f2.impl())));
 }
 
 template<typename F1, typename F2, typename A, typename B, typename C>
-auto operator*(Function<F1,C,B>&& f1, const Function<F2,B,A>& f2) {
+auto operator*(Function_<F1,C,B>&& f1, const Function_<F2,B,A>& f2) {
 	return function<A,C>(Composed<F1,F2>(std::forward(f1.impl()), f2.impl()));
 }
 
 template<typename F1, typename F2, typename A, typename B, typename C>
-auto operator*(const Function<F1,C,B>& f1, const Function<F2,B,A>& f2) {
+auto operator*(const Function_<F1,C,B>& f1, const Function_<F2,B,A>& f2) {
 	return function<A,C>(Composed<F1,F2>(f1.impl(), f2.impl()));
 }
 

@@ -45,7 +45,7 @@ public:
 
 
 template<typename F, typename... Args>
-class Function : public FunctionBase<F> { };
+class Function_ : public FunctionBase<F> { };
 
 namespace detail {
 	template<typename F> //Callable object considered by default
@@ -62,7 +62,7 @@ namespace detail {
 	struct function_deduction<Ret (Args...)> {
 		template<typename F>
 		static constexpr auto generate(const F& f) { 
-			return Function<const std::remove_cvref_t<F>&,Ret,Args...>(f); 
+			return Function_<const std::remove_cvref_t<F>&,Ret,Args...>(f); 
 		}
 	};
 
@@ -70,7 +70,7 @@ namespace detail {
 	struct function_deduction<Ret (Class::*)(Args...) const> {
 		template<typename F>
 		static constexpr auto generate(F&& f) { 
-			return Function<std::remove_cvref_t<F>,Ret,Args...>(std::forward<F>(f)); 
+			return Function_<std::remove_cvref_t<F>,Ret,Args...>(std::forward<F>(f)); 
 		}
 	};
 	
@@ -90,7 +90,7 @@ namespace detail {
 	
 	template<typename F, typename... Args>
 	struct function_from_tuple<F,std::tuple<Args...>> {
-		using type = Function<F,Args...>;
+		using type = Function_<F,Args...>;
 	};
 	
 	template<typename F, typename... Args>
@@ -101,7 +101,7 @@ namespace detail {
 	
 	template<typename F, typename Ret>
 	struct function_reorder<F,Ret> {
-		using type = Function<F,Ret>;
+		using type = Function_<F,Ret>;
 	};
 
 	template<std::size_t I, typename NewType, typename Arg, typename... Args>
@@ -189,7 +189,7 @@ auto function(F&& f) {
 
 //Special case for 0 parameter functions (can be evaluated and converted to ret (lazy evaluation))
 template<typename F, typename Ret>
-class Function<F,Ret> : public FunctionBase<F> {
+class Function_<F,Ret> : public FunctionBase<F> {
 public:
 	using FunctionBase<F>::FunctionBase;
 
@@ -198,7 +198,7 @@ public:
 
 //Special case for 0 parameter functions (can be evaluated and converted to ret (lazy evaluation)). If we reach this point and it is still generic, we deduce the type from the function call
 template<typename F, std::size_t I>
-class Function<F,Generic<I>> : public FunctionBase<F> {
+class Function_<F,Generic<I>> : public FunctionBase<F> {
 public:
 	using FunctionBase<F>::FunctionBase;
 	using Ret = decltype(std::declval<F>()());
@@ -208,7 +208,7 @@ public:
 
 //When outputting a lazy-evaluable function, we actually evaluate it
 template<typename F, typename Ret>
-std::ostream& operator<<(std::ostream& os, const Function<F,Ret>& f) {
+std::ostream& operator<<(std::ostream& os, const Function_<F,Ret>& f) {
 	os<<f.impl()(); return os;
 }
 
@@ -234,23 +234,6 @@ public:
 	}*/
 };
 
-/*
-template<typename F, typename Arg>
-class Curried<F,Arg> {
-	F f;
-	Arg arg;
-public:
-	Curried(F&& f, Arg&& arg) : f(std::forward<F>(f)), arg(std::forward<Arg>(arg)) { }
-	Curried(const F& f, Arg&& arg) : f(f), arg(std::forward<Arg>(arg))             { }
-	Curried(F&& f, const Arg& arg) : f(std::forward<F>(f)), arg(arg)               { }
-	Curried(const F& f, const Arg& arg) : f(f), arg(arg)                           { }
-
-	auto operator()() const {
-		return f(arg);
-	}
-};
-*/
-
 
 template<typename F, typename Arg>
 class Curried<F&,Arg> {
@@ -264,31 +247,10 @@ public:
 	auto operator()(Args&&... args) const {
 		return f(arg, std::forward<Args>(args)...);
 	}
-/*
-	template<typename... Args>
-	auto operator()(const Args&... args) const {
-		return f(arg, args...);
-	}*/
 };
-
-/*
-template<typename F, typename Arg>
-class Curried<F&,Arg> {
-	F& f;
-	Arg arg;
-public:
-	Curried(const F& f, Arg&& arg) : f(f), arg(std::forward<Arg>(arg))             { }
-	Curried(const F& f, const Arg& arg) : f(f), arg(arg)                           { }
-
-	auto operator()() const {
-		return f(arg);
-	}
-};
-*/
-
 //General case for 1 or more parameters
 template<typename F, typename Ret, typename Arg, typename... Args>
-class Function<F,Ret,Arg,Args...> : public FunctionBase<F> {
+class Function_<F,Ret,Arg,Args...> : public FunctionBase<F> {
 public:
 	using FunctionBase<F>::FunctionBase;
 	
@@ -301,13 +263,13 @@ public:
 	}
 	
 	template<typename FArg>
-	auto operator()(Function<FArg,Arg>&& arg) const {//Currying with lazy evaluation
-		return function<Args...,Ret>(Curried<decltype(this->f),std::remove_cvref_t<Function<FArg,Arg>>>(this->f,std::forward<Function<FArg,Arg>>(arg)));	
+	auto operator()(Function_<FArg,Arg>&& arg) const {//Currying with lazy evaluation
+		return function<Args...,Ret>(Curried<decltype(this->f),std::remove_cvref_t<Function_<FArg,Arg>>>(this->f,std::forward<Function_<FArg,Arg>>(arg)));	
 	}
 	
 	template<typename FArg>
-	auto operator()(const Function<FArg,Arg>& arg) const {//Currying with lazy evaluation
-		return function<Args...,Ret>(Curried<decltype(this->f),std::remove_cvref_t<Function<FArg,Arg>>>(this->f,arg));	
+	auto operator()(const Function_<FArg,Arg>& arg) const {//Currying with lazy evaluation
+		return function<Args...,Ret>(Curried<decltype(this->f),std::remove_cvref_t<Function_<FArg,Arg>>>(this->f,arg));	
 	}
 	
 	//A1 instead of Arg in order to enable lazy evaluation of parameters.
@@ -320,7 +282,7 @@ public:
 
 //General case for 1 or more parameters with a generic argument
 template<typename F, typename Ret, std::size_t I, typename... Args>
-class Function<F,Ret,Generic<I>,Args...> : public FunctionBase<F> {
+class Function_<F,Ret,Generic<I>,Args...> : public FunctionBase<F> {
 public:
 	using FunctionBase<F>::FunctionBase;
 	
@@ -337,15 +299,15 @@ public:
 	}
 	
 	template<typename FArg, typename Arg> // It is indeed generic
-	auto operator()(Function<FArg,Arg>&& arg) const {//Currying with lazy evaluation
+	auto operator()(Function_<FArg,Arg>&& arg) const {//Currying with lazy evaluation
 		//We would need to replace Generic<I> with Arg in Args... and Ret
-		return function_replace<I,Arg,Args...,Ret>(Curried<decltype(this->f),std::remove_cvref_t<Function<FArg,Arg>>>(this->f,std::forward<Function<FArg,Arg>>(arg)));	
+		return function_replace<I,Arg,Args...,Ret>(Curried<decltype(this->f),std::remove_cvref_t<Function_<FArg,Arg>>>(this->f,std::forward<Function_<FArg,Arg>>(arg)));	
 	}
 	
 	template<typename FArg, typename Arg> // It is indeed generic
-	auto operator()(const Function<FArg,Arg>& arg) const {//Currying with lazy evaluation
+	auto operator()(const Function_<FArg,Arg>& arg) const {//Currying with lazy evaluation
 		//We would need to replace Generic<I> with Arg in Args... and Ret
-		return function_replace<I,Arg, Args...,Ret>(Curried<decltype(this->f),std::remove_cvref_t<Function<FArg,Arg>>>(this->f,arg));	
+		return function_replace<I,Arg, Args...,Ret>(Curried<decltype(this->f),std::remove_cvref_t<Function_<FArg,Arg>>>(this->f,arg));	
 	}
 	
 	//A1 instead of Arg in order to enable lazy evaluation of parameters, although

@@ -6,59 +6,59 @@
 namespace fun {
 
 template<typename T>
-struct type {
+struct typeinfo {
 	static  std::string name() { return "<unknown>"; }
 };
 
 template<typename T>
-struct type<const T&> {
-	static  std::string name() { return type<T>::name(); }
+struct typeinfo<const T&> {
+	static  std::string name() { return typeinfo<T>::name(); }
 };
 
 template<typename T>
-struct type<T&&> {
-	static  std::string name() { return type<T>::name(); }
+struct typeinfo<T&&> {
+	static  std::string name() { return typeinfo<T>::name(); }
 };
 
 template<>
-struct type<float> {
+struct typeinfo<float> {
 	static  std::string name() { return "Float"; }
 };
 
 template<>
-struct type<double> {
+struct typeinfo<double> {
 	static  std::string name() { return "Double"; }
 };
 
 template<>
-struct type<int> {
+struct typeinfo<int> {
 	static  std::string name() { return "Int"; }
 };
 
 template<>
-struct type<char> {
+struct typeinfo<char> {
 	static  std::string name() { return "Char"; }
 };
 
 template<std::size_t I>
-struct type<Generic<I>> {
+struct typeinfo<Generic<I>> {
 	static  std::string name() { std::string n; n = char('a'-1+I); return n; }
 };
 
 template<>
-struct type<std::string> {
+struct typeinfo<std::string> {
 	static  std::string name() { return "[Char]"; }
 };
 
 
 template<typename F, typename Ret, typename Arg, typename... Args>
-struct type<Function<F,Ret,Arg, Args...>> {
-	static  std::string name() { return type<Arg>::name() + " -> " + type<Function<F,Ret,Args...>>::name(); }
+struct typeinfo<Function_<F,Ret,Arg, Args...>> {
+	static  std::string name() { return typeinfo<Arg>::name() + " -> " + typeinfo<Function_<F,Ret,Args...>>::name(); }
 };
 
 template<typename F, typename Ret>
-struct type<Function<F,Ret>> {
-	static  std::string name() { return type<Ret>::name(); }
+struct typeinfo<Function_<F,Ret>> {
+	static  std::string name() { return typeinfo<Ret>::name(); }
 };
 
 
