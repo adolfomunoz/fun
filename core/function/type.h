@@ -2,64 +2,75 @@
 
 #include "generic.h"
 #include "function.h"
+#include <type_traits>
 
 namespace fun {
 
-template<typename T>
-struct typeinfo {
-	static  std::string name() { return "<unknown>"; }
+/*******************************
+ * SPECIFIC TYPES
+ *******************************/
+
+struct Function {};
+
+
+/*******************************
+ * THE GENERAL TYPE
+ *******************************/
+
+template<typename... T>
+struct type {
+	template<typename Type>
+	struct match {
+		static constexpr bool value = false; 
+	};
 };
 
 template<typename T>
-struct typeinfo<const T&> {
-	static  std::string name() { return typeinfo<T>::name(); }
+struct type<T> {
+	template<typename Type>
+	struct match {
+		static constexpr bool value = std::is_same<T,Type>::value; 
+	};
 };
 
-template<typename T>
-struct typeinfo<T&&> {
-	static  std::string name() { return typeinfo<T>::name(); }
-};
-
-template<>
-struct typeinfo<float> {
-	static  std::string name() { return "Float"; }
-};
-
-template<>
-struct typeinfo<double> {
-	static  std::string name() { return "Double"; }
-};
-
-template<>
-struct typeinfo<int> {
-	static  std::string name() { return "Int"; }
-};
-
-template<>
-struct typeinfo<char> {
-	static  std::string name() { return "Char"; }
-};
-
-template<std::size_t I>
-struct typeinfo<Generic<I>> {
-	static  std::string name() { std::string n; n = char('a'-1+I); return n; }
-};
-
-template<>
-struct typeinfo<std::string> {
-	static  std::string name() { return "[Char]"; }
-};
+template<typename T1, typename T2>
+using type_match_v = typename type<T1>::template match<T2>::value;
 
 
-template<typename F, typename Ret, typename Arg, typename... Args>
-struct typeinfo<Function_<F,Ret,Arg, Args...>> {
-	static  std::string name() { return typeinfo<Arg>::name() + " -> " + typeinfo<Function_<F,Ret,Args...>>::name(); }
+template<typename A1, typename A2, typename... Rest>
+struct type<Function, A1, A2, Rest...> {
+	template<typename Type>
+	struct match { // This "false" includes Function_<F,Ret>
+		static constexpr bool value = false;
+	};
+
+	template<typename F, typename Ret, typename Arg, typename... Args> 
+	struct match<Function_<F,Ret,Arg, Args...>> {
+		static constexpr bool value = 
+//			typename type<A1>::template match<Arg>::value &&
+		       	typename type<Function, A2, Rest...>::template match<Function_<F,Ret,Args...>>::value;
+	};
+
+	template<typename F, typename Ret> 
+	struct match<Function_<F,Ret>> {
+		static constexpr bool value = false;
+	};
 };
 
-template<typename F, typename Ret>
-struct typeinfo<Function_<F,Ret>> {
-	static  std::string name() { return typeinfo<Ret>::name(); }
+template<typename A1>
+struct type<Function, A1> {
+	template<typename Type>
+	struct match { // This "false" includes Function_<F,Ret>
+		static constexpr bool value = false;
+	};
+
+	template<typename F, typename Ret> 
+	struct match<Function_<F,Ret>> {
+		static constexpr bool value = typename type<A1>::template match<Ret>::value;
+	};
 };
+
+
 
 
 
