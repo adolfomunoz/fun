@@ -10,7 +10,7 @@ struct type {};
  
 template<typename T, typename U>
 struct match {
-	static constexpr bool value = false;
+	static constexpr bool value = std::is_same<TypeID,U>::value; 
 };
 
 template<typename TypeID, typename U>
