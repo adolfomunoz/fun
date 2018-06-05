@@ -1,6 +1,7 @@
 #pragma once
 
 #include "generic.h"
+#include "generic-replacement.h"
 #include <type_traits>
 
 namespace fun {
@@ -10,20 +11,7 @@ struct type {};
  
 template<typename T, typename U>
 struct match {
-	static constexpr bool value = std::is_same<TypeID,U>::value; 
+	static constexpr bool value = std::is_same<T,U>::value; 
 };
-
-template<typename TypeID, typename U>
-struct match<type<TypeID>,U> {
-	static constexpr bool value = std::is_same<TypeID,U>::value; 
-};
-
-
-
-
-
-
-
-
 
 }

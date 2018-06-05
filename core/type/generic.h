@@ -7,14 +7,14 @@ struct Generic {};
 //Represents a generic type
 
 namespace generic {
-	using a = Generic<1>;
-	using b = Generic<2>;
-	using c = Generic<3>;
-	using d = Generic<4>;
-	using e = Generic<5>;
-	using f = Generic<6>;
-	using g = Generic<7>;
-	using h = Generic<8>;
+	using a = Generic<0>;
+	using b = Generic<1>;
+	using c = Generic<2>;
+	using d = Generic<3>;
+	using e = Generic<4>;
+	using f = Generic<5>;
+	using g = Generic<6>;
+	using h = Generic<7>;
 }	
 	
 };
