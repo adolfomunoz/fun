@@ -66,11 +66,24 @@ struct apply_replacements<Replacements, type<Generic<I>,R...> > {
 };
 
 
-/*
 template<typename TypeID, typename P1, typename... R1, typename P2, typename... R2> 
 struct match<type<TypeID,P1,R1...>, type<TypeID,P2,R2...>> {
+	using match_head = match<P1,P2>;
+	using match_rest = match< type<TypeID,R1...>, apply_replacements_t<typename match_head::replacements,type<TypeID,R2...> > >;
 
+	static constexpr bool value = (match_head::value) && (match_rest::value); 
+	using replacements = generic_replacement_merge_t<typename match_head::replacements, typename match_rest::replacements>;
 };
-*/
+
+template<typename TypeID, typename P1, typename P2> 
+struct match<type<TypeID,P1>, type<TypeID,P2>> {
+	using match_head = match<P1,P2>;
+
+	static constexpr bool value = match_head::value;
+	using replacements = typename match_head::replacements;
+};
+
+struct Tuple { };
+
 
 }

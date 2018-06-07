@@ -21,6 +21,11 @@ struct typeinfo<T&&> {
 };
 
 template<>
+struct typeinfo<bool> {
+	static  std::string name() { return "Bool"; }
+};
+
+template<>
 struct typeinfo<float> {
 	static  std::string name() { return "Float"; }
 };
@@ -78,6 +83,11 @@ private:
 	};
 public:
 	static std::string name() { return innertypeinfo<Args...>::name(); }
+};
+
+template<typename... Args>
+struct typeinfo<type<Tuple, Args...>> {
+	static std::string name() { return typeinfo<std::tuple<Args...>>::name(); }
 };
 
 

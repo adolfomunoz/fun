@@ -8,23 +8,6 @@ namespace fun {
 
 namespace detail {
 
-	/*
-    template<bool cond, typename T1, typename T2>
-    constexpr auto choose(const T1& t1, const T2& t2) {
-	if constexpr (cond) return t1; else return t2;
-    }
-
-    template<std::size_t Index, typename NewType, typename T, std::size_t... I>
-    constexpr auto tuple_replace(const T& t, std::index_sequence<I...>) {
-	    return std::tuple(choose<I==Index>(NewType{},std::get<I>(t))...);
-    }
-
-    template<typename T, std::size_t... I>
-    constexpr auto tuple_expand(const T& t, std::index_sequence<I...>) {
-	    return std::tuple(choose<I<std::tuple_size_v<T>>(std::get<I>(t),Generic<I>{})...);
-    }
-   */
-
     template<typename Tuple, std::size_t Index, typename NewType, typename Indices>
     struct tuple_replace_sequence { };
 
@@ -61,7 +44,8 @@ namespace detail {
     struct tuple_expand {
 	using type = typename tuple_expand_sequence<Tuple, std::make_index_sequence<std::max(N,std::tuple_size_v<Tuple>)>>::type;
     };
-    
+
+
 }
 
 struct generic_replacement_default {
@@ -86,5 +70,31 @@ struct generic_replacement_find {
 
 template<std::size_t I, typename Replacement>
 using generic_replacement_find_t = typename generic_replacement_find<I,Replacement>::type;
+
+template<typename Replacement1, typename Replacement2, std::size_t I = 0, typename R2I = typename generic_replacement_find<I,Replacement2>::type, bool last = (I == (std::tuple_size_v<Replacement2>-1))>
+struct generic_replacement_merge {
+	using type = typename generic_replacement<I,R2I, typename generic_replacement_merge<Replacement1, Replacement2, I+1>::type>::type;
+};
+
+template<typename Replacement1, typename Replacement2, std::size_t I>
+struct generic_replacement_merge<Replacement1, Replacement2, I, Generic<I>, false> {
+	using type = typename generic_replacement_merge<Replacement1, Replacement2, I+1>::type;
+};
+
+template<typename Replacement1, typename Replacement2, std::size_t I, typename R2I>
+struct generic_replacement_merge<Replacement1, Replacement2, I, R2I, true> {
+	using type = typename generic_replacement<I, R2I, Replacement1>::type;
+};
+
+template<typename Replacement1, typename Replacement2, std::size_t I>
+struct generic_replacement_merge<Replacement1, Replacement2, I, Generic<std::tuple_size_v<Replacement2>-1>, true> {
+	using type = Replacement1;
+};
+
+template<typename Replacement1, typename Replacement2>
+using generic_replacement_merge_t = typename generic_replacement_merge<Replacement1, Replacement2>::type;
+
+
+
 
 }
