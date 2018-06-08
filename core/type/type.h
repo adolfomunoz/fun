@@ -26,6 +26,50 @@ struct match {
 	using replacements = generic_replacement_default_t;
 };
 
+template<typename T, typename U>
+struct match<const T&,U> {
+	using match_unref = match<T,U>;
+	static constexpr bool value = match_unref::value; 
+	using replacements = typename match_unref::replacements;
+};
+
+template<typename T, typename U>
+struct match<T&,U> {
+	using match_unref = match<T,U>;
+	static constexpr bool value = match_unref::value; 
+	using replacements = typename match_unref::replacements;
+};
+
+
+template<typename T, typename U>
+struct match<T&&,U> {
+	using match_unref = match<T,U>;
+	static constexpr bool value = match_unref::value; 
+	using replacements = typename match_unref::replacements;
+};
+
+template<typename T, typename U>
+struct match<T,U&> {
+	using match_unref = match<T,U>;
+	static constexpr bool value = match_unref::value; 
+	using replacements = typename match_unref::replacements;
+};
+
+
+template<typename T, typename U>
+struct match<T,const U&> {
+	using match_unref = match<T,U>;
+	static constexpr bool value = match_unref::value; 
+	using replacements = typename match_unref::replacements;
+};
+
+template<typename T, typename U>
+struct match<T,U&&> {
+	using match_unref = match<T,U>;
+	static constexpr bool value = match_unref::value; 
+	using replacements = typename match_unref::replacements;
+};
+
 template<std::size_t I, typename U>
 struct match<Generic<I>,U> {
 	static constexpr bool value = true; 

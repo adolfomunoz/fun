@@ -22,4 +22,9 @@ int main(int argc, char** argv) {
 	test_match<fun::type<fun::Tuple, fun::generic::a, fun::generic::b, int, fun::generic::a>, fun::type<fun::Tuple, float, double, int, float>>();
 	test_match<fun::type<fun::Tuple, fun::generic::a, fun::generic::b, int, fun::generic::a>, fun::type<fun::Tuple, float, double, int, bool>>();
 	test_match<fun::type<fun::Tuple, fun::generic::a, fun::generic::b, int, fun::generic::a>, fun::type<fun::Tuple, fun::generic::c, fun::generic::c, int, fun::generic::c>>();
+
+	test_match<fun::type<fun::Tuple, fun::type<fun::Tuple, fun::generic::a, fun::generic::b>, fun::generic::a>, fun::type<fun::Tuple, int, double>>();
+	test_match<fun::type<fun::Tuple, fun::type<fun::Tuple, fun::generic::a, fun::generic::b>, fun::generic::a>, fun::type<fun::Tuple, fun::type<fun::Tuple,double,int>, double>>();
+	test_match<fun::type<fun::Tuple, fun::type<fun::Tuple, fun::generic::a, fun::generic::b>, fun::generic::a>, fun::type<fun::Tuple, fun::type<fun::Tuple,double,int>, bool>>();
+
 }

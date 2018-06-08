@@ -5,7 +5,6 @@
 #include <iostream>
 #include "../type/type.h"
 
-
 //This replaces something that will happen in C++20
 namespace std {
 template< class T >
@@ -168,26 +167,11 @@ namespace detail {
 			return (typename function_replace_generic<decltype(f),I, NewType,Args...>::type)(f); 			
 		}
 	};
-	
+
 	template<typename T>
 	struct function_from_type_aux{};
 
-	template<typename Args...> 
-	struct function_from_type_aux<type<Function,Args...>> { 
-		template<typename F>
-		static constexpr auto generate(F&& f) {
-			return (typename function_reorder<std::remove_cvref_t<F>,Args...>::type)(std::forward<F>(f)); 
-		}
-		template<typename F>
-		static constexpr auto generate(const F& f) {
-			return (typename function_reorder<std::remove_cvref_t<F>,Args...>::type)(f); 
-		}
-		template<typename R, typename... A>
-		static constexpr auto generate(R f(A...)) {
-			return (typename function_reorder<decltype(f),Args...>::type)(f); 			
-		}
-	};
-
+	//Final implementation in type.h
 	
 };
 
@@ -196,10 +180,12 @@ auto function_replace(F&& f) {
 	return detail::function_replace_aux<I, NewType, A1, Args...>::generate(std::forward<F>(f));
 }
 
+
 template<typename T, typename F>
-auto function_replace(F&& f) {
+auto function_from_type(F&& f) {
 	return detail::function_from_type_aux<T>::generate(std::forward<F>(f));
 }
+
 
 template<typename A1, typename... Args, typename F>
 auto function(F&& f) {
@@ -295,7 +281,7 @@ public:
 	auto operator()(const Function_<FArg,Arg>& arg) const {//Currying with lazy evaluation
 		return function<Args...,Ret>(Curried<decltype(this->f),std::remove_cvref_t<Function_<FArg,Arg>>>(this->f,arg));	
 	}
-	
+
 	//A1 instead of Arg in order to enable lazy evaluation of parameters.
 	template<typename A1, typename A2, typename... Args2>
 	auto operator()(A1&& arg, A2&& a2, Args2&&... args2) const { // Full call
@@ -342,7 +328,6 @@ public:
 			(std::forward<A2>(a2),std::forward<Args2>(args2)...);
 	}
 };
-
 
 
 }; //namespace fun

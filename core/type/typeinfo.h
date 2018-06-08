@@ -7,13 +7,19 @@ namespace fun {
 
 template<typename T>
 struct typeinfo {
-	static  std::string name() { return "<unknown>"; }
+	static  std::string name() { return std::string(typeid(T).name()); }
 };
 
 template<typename T>
 struct typeinfo<const T&> {
 	static  std::string name() { return typeinfo<T>::name(); }
 };
+
+template<typename T>
+struct typeinfo<T&> {
+	static  std::string name() { return typeinfo<T>::name(); }
+};
+
 
 template<typename T>
 struct typeinfo<T&&> {
