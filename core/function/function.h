@@ -168,6 +168,25 @@ namespace detail {
 			return (typename function_replace_generic<decltype(f),I, NewType,Args...>::type)(f); 			
 		}
 	};
+	
+	template<typename T>
+	struct function_from_type_aux{};
+
+	template<typename Args...> 
+	struct function_from_type_aux<type<Function,Args...>> { 
+		template<typename F>
+		static constexpr auto generate(F&& f) {
+			return (typename function_reorder<std::remove_cvref_t<F>,Args...>::type)(std::forward<F>(f)); 
+		}
+		template<typename F>
+		static constexpr auto generate(const F& f) {
+			return (typename function_reorder<std::remove_cvref_t<F>,Args...>::type)(f); 
+		}
+		template<typename R, typename... A>
+		static constexpr auto generate(R f(A...)) {
+			return (typename function_reorder<decltype(f),Args...>::type)(f); 			
+		}
+	};
 
 	
 };
@@ -175,6 +194,11 @@ namespace detail {
 template<std::size_t I, typename NewType, typename A1, typename... Args, typename F>
 auto function_replace(F&& f) {
 	return detail::function_replace_aux<I, NewType, A1, Args...>::generate(std::forward<F>(f));
+}
+
+template<typename T, typename F>
+auto function_replace(F&& f) {
+	return detail::function_from_type_aux<T>::generate(std::forward<F>(f));
 }
 
 template<typename A1, typename... Args, typename F>

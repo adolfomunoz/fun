@@ -1,9 +1,24 @@
 #pragma once
 
 #include "../type/typeinfo.h"
-#include "function.h"
+#include "type.h"
 
 namespace fun {
+	
+template<typename P, typename... R>
+struct typeinfo<type<Function, P, R...>> {
+	static std::string name() { return typeinfo<P>::name() + " -> " + typeinfo<type<Function,R...>>::name(); }
+};
+
+template<typename... InnerR, typename... R>
+struct typeinfo<type<Function, type<Function, InnerR...>, R...>> {
+	static std::string name() { return std::string("(") + typeinfo<type<Function,InnerR...>>::name() + ") -> " + typeinfo<type<Function,R...>>::name(); }
+};
+
+template<typename P>
+struct typeinfo<type<Function, P>> {
+	static std::string name() { return typeinfo<P>::name(); }
+};
 
 template<typename F, typename Ret, typename Arg, typename... Args>
 struct typeinfo<Function_<F,Ret,Arg, Args...>> {

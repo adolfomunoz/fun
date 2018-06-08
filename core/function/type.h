@@ -1,74 +1,37 @@
 #pragma once
 
-#include "generic.h"
+#include "../type/type.h"
 #include "function.h"
-#include <type_traits>
 
 namespace fun {
 
 /*******************************
- * SPECIFIC TYPES
+ * TYPE TAG
  *******************************/
 
 struct Function {};
 
-
 /*******************************
- * THE GENERAL TYPE
+ * MATCH
  *******************************/
 
-template<typename... T>
-struct type {
-	template<typename Type>
-	struct match {
-		static constexpr bool value = false; 
-	};
+template<typename P1, typename... R1, typename F, typename Ret2, typename P2, typename... R2> 
+struct match<type<Function,P1,R1...>, Function_<F,Ret2,P2,R2...>> {
+	using match_head = match<P1,P2>;
+	using match_rest = match< apply_replacements_t<typename match_head::replacements,type<Function,R1...>>, Function_<F,Ret2,R2...> >;
+
+	static constexpr bool value = (match_head::value) && (match_rest::value); 
+	using replacements = generic_replacement_merge_t<typename match_head::replacements, typename match_rest::replacements>;
 };
 
-template<typename T>
-struct type<T> {
-	template<typename Type>
-	struct match {
-		static constexpr bool value = std::is_same<T,Type>::value; 
-	};
+template<typename P1, typename F, typename Ret2> 
+struct match<type<Function,P1>, Function_<F,Ret2>> {
+	using match_head = match<P1,Ret2>;
+
+	static constexpr bool value = match_head::value;
+	using replacements = typename match_head::replacements;
 };
 
-template<typename T1, typename T2>
-using type_match_v = typename type<T1>::template match<T2>::value;
-
-
-template<typename A1, typename A2, typename... Rest>
-struct type<Function, A1, A2, Rest...> {
-	template<typename Type>
-	struct match { // This "false" includes Function_<F,Ret>
-		static constexpr bool value = false;
-	};
-
-	template<typename F, typename Ret, typename Arg, typename... Args> 
-	struct match<Function_<F,Ret,Arg, Args...>> {
-		static constexpr bool value = 
-//			typename type<A1>::template match<Arg>::value &&
-		       	typename type<Function, A2, Rest...>::template match<Function_<F,Ret,Args...>>::value;
-	};
-
-	template<typename F, typename Ret> 
-	struct match<Function_<F,Ret>> {
-		static constexpr bool value = false;
-	};
-};
-
-template<typename A1>
-struct type<Function, A1> {
-	template<typename Type>
-	struct match { // This "false" includes Function_<F,Ret>
-		static constexpr bool value = false;
-	};
-
-	template<typename F, typename Ret> 
-	struct match<Function_<F,Ret>> {
-		static constexpr bool value = typename type<A1>::template match<Ret>::value;
-	};
-};
 
 
 
