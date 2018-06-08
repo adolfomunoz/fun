@@ -71,7 +71,7 @@ public:
 		using match = fun::match<type<TypeArgs...>,Arg>;
 		static_assert(match::value, "Type mismatch");
 		return function_from_type<apply_replacements_t<typename match::replacements, type<Function, Args...,Ret>>>(
-				Curried<decltype(this->f),std::remove_cvref_t<Arg>>(this->f,std::forward<Arg>(arg)));
+				Curried<decltype(this->f),std::remove_cvref_t<Arg>>(this->f,arg));
 	}
 
 	template<typename FArg, typename Arg> // It is indeed generic

@@ -1,53 +1,37 @@
 #pragma once
 
 #include "function.h"
+#include "type.h"
 
 namespace fun {
-
-//We probably need a "Composed" class, unless we manage the mumbo-jumbo of generic functions.
-template<typename F1, typename F2>
-class Composed {
-	F1 f1; F2 f2;
-public:
-	Composed(F1&& f1, F2&& f2) : f1(std::forward<F1>(f1)), f2(std::forward<F2>(f2)) { }
-	Composed(const F1& f1, F2&& f2) : f1(f1), f2(std::forward<F2>(f2))              { }
-	Composed(F1&& f1, const F2& f2) : f1(std::forward<F1>(f1)), f2(f2)              { }
-	Composed(const F1& f1, const F2& f2) : f1(f1), f2(f2)                           { }
-
-	template<typename Arg>
-	auto operator()(Arg&& arg) const {
-		return f1(f2(std::forward<Arg>(arg)));
-	}
-};
-
-
-
-//Function composition with type checking (not generic... yet)
-template<typename F1, typename F2, typename A, typename B, typename C>
-auto operator*(Function_<F1,C,B>&& f1, Function_<F2,B,A>&& f2) {
-	return function<A,C>(Composed<F1,F2>(std::forward(f1.impl()), std::forward(f2.impl())));
+	
+auto compose = fun::function<
+			fun::type<Function,fun::generic::b,fun::generic::c>,
+			fun::type<Function,fun::generic::a,fun::generic::b>,
+			fun::generic::a, fun::generic::c>(
+	[] (const auto& f, const auto&g, const auto& x) { return f(g(x)); }
+);
+	
+template<typename F, typename FP, typename FR, typename G, typename GP, typename GR>
+auto operator*(Function_<F,FR,FP>&& f, Function_<G,GR,GP>&& g) {
+	return compose(std::forward<Function_<F,FR,FP>>(f), std::forward<Function_<G,GR,GP>>(g));
 }
 
-//Function composition with type checking (not generic... yet)
-template<typename F1, typename F2, typename A, typename B, typename C>
-auto operator*(const Function_<F1,C,B>& f1, Function_<F2,B,A>&& f2) {
-	return function<A,C>(Composed<F1,F2>(f1.impl(), std::forward(f2.impl())));
+template<typename F, typename FP, typename FR, typename G, typename GP, typename GR>
+auto operator*(const Function_<F,FR,FP>& f, Function_<G,GR,GP>&& g) {
+	return compose(f, std::forward<Function_<G,GR,GP>>(g));
 }
 
-template<typename F1, typename F2, typename A, typename B, typename C>
-auto operator*(Function_<F1,C,B>&& f1, const Function_<F2,B,A>& f2) {
-	return function<A,C>(Composed<F1,F2>(std::forward(f1.impl()), f2.impl()));
+template<typename F, typename FP, typename FR, typename G, typename GP, typename GR>
+auto operator*(Function_<F,FR,FP>&& f, const Function_<G,GR,GP>& g) {
+	return compose(std::forward<Function_<F,FR,FP>>(f), g);
 }
 
-template<typename F1, typename F2, typename A, typename B, typename C>
-auto operator*(const Function_<F1,C,B>& f1, const Function_<F2,B,A>& f2) {
-	return function<A,C>(Composed<F1,F2>(f1.impl(), f2.impl()));
+template<typename F, typename FP, typename FR, typename G, typename GP, typename GR>
+auto operator*(const Function_<F,FR,FP>& f, const Function_<G,GR,GP>& g) {
+	return compose(f, g);
 }
 
 
 
-	
-	
-	
-	
 } // namespace fun
