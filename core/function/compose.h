@@ -5,10 +5,9 @@
 
 namespace fun {
 	
-auto compose = fun::function<
-			fun::type<Function,fun::generic::b,fun::generic::c>,
-			fun::type<Function,fun::generic::a,fun::generic::b>,
-			fun::generic::a, fun::generic::c>(
+auto compose = function<type<Function,generic::b,generic::c>,
+			type<Function,generic::a,generic::b>,
+			generic::a, generic::c>(
 	[] (const auto& f, const auto&g, const auto& x) { return f(g(x)); }
 );
 	

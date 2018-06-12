@@ -127,7 +127,4 @@ struct match<type<TypeID,P1>, type<TypeID,P2>> {
 	using replacements = typename match_head::replacements;
 };
 
-struct Tuple { };
-
-
 }
