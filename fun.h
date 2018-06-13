@@ -1,5 +1,6 @@
 #include "core/function/function.h"
 #include "core/function/function-type.h"
+#include "core/function/function-function-parameter.h"
 #include "core/function/compose.h"
 #include "core/function/apply.h"
 #include "core/function/type.h" 
