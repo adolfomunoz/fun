@@ -5,6 +5,7 @@
 
 namespace fun {
 
+
 //General case for 1 or more parameters with a function argument 
 template<typename F, typename Ret, typename... TypeArgs, typename... Args>
 class Function_<F,Ret,type<Function, TypeArgs...>,Args...> : public FunctionBase<F> {
@@ -37,6 +38,11 @@ public:
 		return (*this)(function(arg));
 	}
 
+	template<typename F2, typename Ret2, typename... Args2> //It is indeed generic and matches a specific type (or not)
+	auto operator()(Function_<F2,Ret2,Args2...>& arg) const { //Function parameter, we need non-const reference for reasons
+		return (*this)(const_cast<const Function_<F2,Ret2,Args2...>&>(arg));
+	}
+	
 	//Being a function, we do not do lazy evaluation because functions are lazily
 	// evaluated themselves
 	

@@ -15,6 +15,7 @@ template< class T >
 using remove_cvref_t = typename remove_cvref<T>::type;
 }
 
+//Watch out: const char* parameters are problematic with currying
 namespace fun {
 	
 //Handles construction of functions
@@ -61,7 +62,7 @@ namespace detail {
 	struct function_deduction<Ret (Args...)> {
 		template<typename F>
 		static constexpr auto generate(const F& f) { 
-			return Function_<const std::remove_cvref_t<F>&,Ret,Args...>(f); 
+			return Function_<const std::remove_cvref_t<F>&,std::remove_cvref_t<Ret>,std::remove_cvref_t<Args>...>(f); 
 		}
 	};
 
@@ -69,7 +70,7 @@ namespace detail {
 	struct function_deduction<Ret (Class::*)(Args...) const> {
 		template<typename F>
 		static constexpr auto generate(F&& f) { 
-			return Function_<std::remove_cvref_t<F>,Ret,Args...>(std::forward<F>(f)); 
+			return Function_<std::remove_cvref_t<F>,std::remove_cvref_t<Ret>,std::remove_cvref_t<Args>...>(std::forward<F>(f)); 
 		}
 	};
 	

@@ -2,7 +2,6 @@
 
 #include "../core/function/function.h"
 #include "../core/function/type.h"
-#include "../core/tuple/type.h"
 
 namespace fun {
 
@@ -16,14 +15,8 @@ auto flip = function<type<Function,generic::a,generic::b,generic::c>,generic::b,
 	[] (const auto& f, const auto& x, const auto& y) { return f(y,x); }
 );
 
-auto curry = function<type<Function,type<Tuple, generic::a, generic::b>, generic::c>, generic::a, generic::b, generic::c>(
-	[] (const auto& f, const auto& x, const auto& y) { return f(std::tuple(x,y)); }); 
+auto until = function<type<Function, generic::a, bool>, type<Function, generic::a, generic::a>, generic::a, generic::a>(
+	[] (const auto& pred, const auto& f, const auto& x) { auto y = x; while(!pred(y)) y=f(y); return y; });
 
-auto uncurry = function<type<Function,generic::a, generic::b, generic::c>, type<Tuple, generic::a, generic::b>, generic::c>(
-	[] (const auto& f, const auto& t) { return f(std::get<0>(t), std::get<1>(t)); });
-
-auto fst = function<type<Tuple, generic::a, generic::b>, generic::a>([] (const auto& t) { return std::get<0>(t); });
-
-auto snd = function<type<Tuple, generic::a, generic::b>, generic::b>([] (const auto& t) { return std::get<1>(t); });
 
 }
