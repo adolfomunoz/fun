@@ -5,17 +5,20 @@ namespace fun {
 	
 struct None {
 	template<typename T>
-	static constexpr bool check() { return true; }
+	struct check {
+		static constexpr bool value = true;
+	};
 };	
 
 template<typename C1, typename C2>
 struct And {
-	template<typename T>
-	static constexpr bool check() { 
-		return typename C1::template check<T>() &&
-			   typename C2::template check<T>();
-	}
-};	
+	template<typename T, 
+		 typename check1 = typename C1::template check<T>,
+		 typename check2 = typename C2::template check<T> >
+	struct check {
+		static constexpr bool value = check1::value && check2::value;
+	};
+};
 	
 struct classes_default {
 	using type = std::tuple<None>;
@@ -59,8 +62,7 @@ namespace detail {
     template<typename Tuple, std::size_t Index, typename NewClass>
     struct classes_combine {
 	using type = typename classes_combine_sequence<Tuple, Index, NewClass, std::make_index_sequence<std::tuple_size_v<Tuple>>>::type;
-    };
-	
+    };	
 }
 
 template<typename T1, typename T2, typename... T>
@@ -71,15 +73,15 @@ struct classlist<Class,Generic<I>,More...> {
 	using type = typename detail::classes_combine<typename detail::classes_expand<classlist<More...>,I+1>::type, I, Class>::type;  
 };
 
+template<typename Class, std::size_t I>
+struct classlist<Class,Generic<I>> {
+	using type = typename detail::classes_combine<typename detail::classes_expand<classes_default_t,I+1>::type, I, Class>::type;  
+};
+
+
 template<typename T1, typename T2, typename... T>
 using classes = typename classlist<T1,T2,T...>::type;
 
 template<typename Classes, std::size_t I, typename T> 
-struct classlist_check { 
-	static constexpr bool value = typename detail::classes_expand_element<I, Classes>::template check<T>();
-};
-
-template<typename Classes, std::size_t I, typename T> 
-using class_check = typename classlist_check<Classes,I,T>::value;
-	
+using class_check = typename detail::classes_expand_element<I, Classes>::type::template check<T>;
 }

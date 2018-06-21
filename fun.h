@@ -13,6 +13,8 @@
 
 #include "prelude/misc.h"
 #include "prelude/tuples.h"
+#include "prelude/eq.h"
+#include "prelude/ord.h"
 
 
 

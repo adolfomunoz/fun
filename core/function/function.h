@@ -118,8 +118,8 @@ namespace detail {
 	
 	template<std::size_t I, typename NewType, typename... Args>
 	struct tuple_replace_generic<I,NewType,Generic<I>,Args...> {
-		using type = decltype(std::tuple_cat(std::declval(std::tuple<NewType>()),
-				tuple_replace_generic<I,NewType,Args...>::type));		
+		using type = decltype(std::tuple_cat(std::declval<std::tuple<NewType>>(),
+				std::declval<typename tuple_replace_generic<I,NewType,Args...>::type>()));		
 	};	
 
 	template<std::size_t I, typename NewType>
@@ -230,6 +230,8 @@ public:
 	//NEED STATIC ASSERT HERE FOR CHECKING CLASS
 	using FunctionBase<F>::FunctionBase;
 	using Ret = decltype(std::declval<F>()());
+
+	static_assert(class_check<Classes,I,Ret>::value, "Generic type is not an instance of class.");
 	
 	operator Ret() const { return (this->f)(); }
 };
@@ -316,6 +318,7 @@ public:
 	
 	template<typename Arg> //It is indeed generic
 	auto operator()(Arg&& arg) const { //Currying
+		static_assert(class_check<Classes,I,Arg>::value, "Generic type is not an instance of class.");
 		//We will need to static assesrt the class of Arg
 		//We need to replace Generic<I> with Arg in Args... and Ret
 		return function_replace<Classes,I,Arg,Args...,Ret>(Curried<decltype(this->f),std::remove_cvref_t<Arg>>(this->f,std::forward<Arg>(arg)));
@@ -323,21 +326,21 @@ public:
 
 	template<typename Arg> //It is indeed generic	
 	auto operator()(const Arg& arg) const { //Currying
-		//We will need to static assesrt the class of Arg
+		static_assert(class_check<Classes,I,Arg>::value, "Generic type is not an instance of class.");
 		//We would need to replace Generic<I> with Arg in Args... and Ret
 		return function_replace<Classes,I,Arg,Args...,Ret>(Curried<decltype(this->f),std::remove_cvref_t<Arg>>(this->f,arg));
 	}
 	
 	template<typename FArg, typename FClasses, typename Arg> // It is indeed generic
 	auto operator()(Function_<FArg,FClasses,Arg>&& arg) const {//Currying with lazy evaluation
-		//We will need to static assesrt the class of Arg
+		static_assert(class_check<Classes,I,Arg>::value, "Generic type is not an instance of class.");
 		//We would need to replace Generic<I> with Arg in Args... and Ret
 		return function_replace<Classes,I,Arg,Args...,Ret>(Curried<decltype(this->f),std::remove_cvref_t<Function_<FArg,FClasses,Arg>>>(this->f,std::forward<Function_<FArg,FClasses,Arg>>(arg)));	
 	}
 	
 	template<typename FArg, typename FClasses, typename Arg> // It is indeed generic
 	auto operator()(const Function_<FArg,FClasses,Arg>& arg) const {//Currying with lazy evaluation
-		//We will need to static assesrt the class of Arg
+		static_assert(class_check<Classes,I,Arg>::value, "Generic type is not an instance of class.");
 		//We would need to replace Generic<I> with Arg in Args... and Ret
 		return function_replace<Classes,I,Arg, Args...,Ret>(Curried<decltype(this->f),std::remove_cvref_t<Function_<FArg,FClasses,Arg>>>(this->f,arg));	
 	}
