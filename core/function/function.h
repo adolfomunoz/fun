@@ -4,6 +4,7 @@
 #include <tuple>
 #include <iostream>
 #include "../type/type.h"
+#include "../type/classes.h"
 
 //This replaces something that will happen in C++20
 namespace std {
@@ -44,7 +45,7 @@ public:
 };
 
 
-template<typename F, typename... Args>
+template<typename F, typename Classes, typename... Args>
 class Function_ : public FunctionBase<F> { };
 
 namespace detail {
@@ -62,7 +63,7 @@ namespace detail {
 	struct function_deduction<Ret (Args...)> {
 		template<typename F>
 		static constexpr auto generate(const F& f) { 
-			return Function_<const std::remove_cvref_t<F>&,std::remove_cvref_t<Ret>,std::remove_cvref_t<Args>...>(f); 
+			return Function_<const std::remove_cvref_t<F>&,classes_default_t,std::remove_cvref_t<Ret>,std::remove_cvref_t<Args>...>(f); 
 		}
 	};
 
@@ -70,7 +71,7 @@ namespace detail {
 	struct function_deduction<Ret (Class::*)(Args...) const> {
 		template<typename F>
 		static constexpr auto generate(F&& f) { 
-			return Function_<std::remove_cvref_t<F>,std::remove_cvref_t<Ret>,std::remove_cvref_t<Args>...>(std::forward<F>(f)); 
+			return Function_<std::remove_cvref_t<F>,classes_default_t, std::remove_cvref_t<Ret>,std::remove_cvref_t<Args>...>(std::forward<F>(f)); 
 		}
 	};
 	
@@ -85,23 +86,23 @@ namespace detail {
 			tuple_elements(t, std::make_index_sequence<sizeof...(Args)-1>{}));
 	}
 
-	template<typename F, typename T>
+	template<typename F, typename Classes, typename T>
 	struct function_from_tuple { };
 	
-	template<typename F, typename... Args>
-	struct function_from_tuple<F,std::tuple<Args...>> {
-		using type = Function_<F,Args...>;
+	template<typename F, typename Classes, typename... Args>
+	struct function_from_tuple<F,Classes,std::tuple<Args...>> {
+		using type = Function_<F,Classes,Args...>;
 	};
 	
-	template<typename F, typename... Args>
+	template<typename F, typename Classes, typename... Args>
 	struct function_reorder {
-		using type = typename function_from_tuple<F,
+		using type = typename function_from_tuple<F,Classes,
 			decltype(tuple_reorder(std::declval<std::tuple<Args...>>()))>::type;
 	};
 	
-	template<typename F, typename Ret>
-	struct function_reorder<F,Ret> {
-		using type = Function_<F,Ret>;
+	template<typename F, typename Classes, typename Ret>
+	struct function_reorder<F,Classes, Ret> {
+		using type = Function_<F,Classes, Ret>;
 	};
 
 	template<std::size_t I, typename NewType, typename Arg, typename... Args>
@@ -126,14 +127,14 @@ namespace detail {
 		using type = std::tuple<NewType>;
 	};
 		
-	template<typename F, std::size_t I, typename NewType, typename Arg, typename... Args>
+	template<typename F, typename Classes, std::size_t I, typename NewType, typename Arg, typename... Args>
 	struct function_replace_generic {
-		using type = typename function_from_tuple<F, decltype(tuple_reorder(std::declval<typename tuple_replace_generic<I,NewType,Arg,Args...>::type>()))>::type;
+		using type = typename function_from_tuple<F, Classes, decltype(tuple_reorder(std::declval<typename tuple_replace_generic<I,NewType,Arg,Args...>::type>()))>::type;
 	};
 
-	template<typename F, std::size_t I, typename NewType, typename Arg>
-	struct function_replace_generic<F,I,NewType,Arg> {
-		using type = typename function_from_tuple<F, typename tuple_replace_generic<I,NewType,Arg>::type>::type;
+	template<typename F, typename Classes, std::size_t I, typename NewType, typename Arg>
+	struct function_replace_generic<F,Classes, I,NewType,Arg> {
+		using type = typename function_from_tuple<F, Classes, typename tuple_replace_generic<I,NewType,Arg>::type>::type;
 	};
 
 		
@@ -141,31 +142,47 @@ namespace detail {
 	struct function_aux { 
 		template<typename F>
 		static constexpr auto generate(F&& f) {
-			return (typename function_reorder<std::remove_cvref_t<F>,Args...>::type)(std::forward<F>(f)); 
+			return (typename function_reorder<std::remove_cvref_t<F>,classes_default_t,Args...>::type)(std::forward<F>(f)); 
 		}
 		template<typename F>
 		static constexpr auto generate(const F& f) {
-			return (typename function_reorder<std::remove_cvref_t<F>,Args...>::type)(f); 
+			return (typename function_reorder<std::remove_cvref_t<F>,classes_default_t,Args...>::type)(f); 
 		}
 		template<typename R, typename... A>
 		static constexpr auto generate(R f(A...)) {
-			return (typename function_reorder<decltype(f),Args...>::type)(f); 			
+			return (typename function_reorder<decltype(f),classes_default_t,Args...>::type)(f); 			
 		}
 	};
+	
+	template<typename... Classes, typename... Args>
+	struct function_aux<std::tuple<Classes...>,Args...> {
+		template<typename F>
+		static constexpr auto generate(F&& f) {
+			return (typename function_reorder<std::remove_cvref_t<F>,std::tuple<Classes...>,Args...>::type)(std::forward<F>(f)); 
+		}
+		template<typename F>
+		static constexpr auto generate(const F& f) {
+			return (typename function_reorder<std::remove_cvref_t<F>,std::tuple<Classes...>,Args...>::type)(f); 
+		}
+		template<typename R, typename... A>
+		static constexpr auto generate(R f(A...)) {
+			return (typename function_reorder<decltype(f),std::tuple<Classes...>,Args...>::type)(f); 			
+		}		
+	};
 
-	template<std::size_t I, typename NewType, typename... Args> 
+	template<typename Classes, std::size_t I, typename NewType, typename... Args> 
 	struct function_replace_aux { 
 		template<typename F>
 		static constexpr auto generate(F&& f) {
-			return (typename function_replace_generic<std::remove_cvref_t<F>,I, NewType,Args...>::type)(std::forward<F>(f)); 
+			return (typename function_replace_generic<std::remove_cvref_t<F>,Classes, I, NewType,Args...>::type)(std::forward<F>(f)); 
 		}
 		template<typename F>
 		static constexpr auto generate(const F& f) {
-			return (typename function_replace_generic<std::remove_cvref_t<F>,I, NewType,Args...>::type)(f); 
+			return (typename function_replace_generic<std::remove_cvref_t<F>,Classes, I, NewType,Args...>::type)(f); 
 		}
 		template<typename R, typename... A>
 		static constexpr auto generate(R f(A...)) {
-			return (typename function_replace_generic<decltype(f),I, NewType,Args...>::type)(f); 			
+			return (typename function_replace_generic<decltype(f),Classes, I, NewType,Args...>::type)(f); 			
 		}
 	};
 
@@ -176,9 +193,9 @@ namespace detail {
 	
 };
 
-template<std::size_t I, typename NewType, typename A1, typename... Args, typename F>
+template<typename Classes, std::size_t I, typename NewType, typename A1, typename... Args, typename F>
 auto function_replace(F&& f) {
-	return detail::function_replace_aux<I, NewType, A1, Args...>::generate(std::forward<F>(f));
+	return detail::function_replace_aux<Classes, I, NewType, A1, Args...>::generate(std::forward<F>(f));
 }
 
 
@@ -186,7 +203,6 @@ template<typename T, typename F>
 auto function_from_type(F&& f) {
 	return detail::function_from_type_aux<T>::generate(std::forward<F>(f));
 }
-
 
 template<typename A1, typename... Args, typename F>
 auto function(F&& f) {
@@ -199,8 +215,8 @@ auto function(F&& f) {
 }
 
 //Special case for 0 parameter functions (can be evaluated and converted to ret (lazy evaluation))
-template<typename F, typename Ret>
-class Function_<F,Ret> : public FunctionBase<F> {
+template<typename F, typename Classes, typename Ret>
+class Function_<F,Classes, Ret> : public FunctionBase<F> {
 public:
 	using FunctionBase<F>::FunctionBase;
 
@@ -208,9 +224,10 @@ public:
 };
 
 //Special case for 0 parameter functions (can be evaluated and converted to ret (lazy evaluation)). If we reach this point and it is still generic, we deduce the type from the function call
-template<typename F, std::size_t I>
-class Function_<F,Generic<I>> : public FunctionBase<F> {
+template<typename F, typename Classes, std::size_t I>
+class Function_<F,Classes, Generic<I>> : public FunctionBase<F> {
 public:
+	//NEED STATIC ASSERT HERE FOR CHECKING CLASS
 	using FunctionBase<F>::FunctionBase;
 	using Ret = decltype(std::declval<F>()());
 	
@@ -218,8 +235,8 @@ public:
 };
 
 //When outputting a lazy-evaluable function, we actually evaluate it
-template<typename F, typename Ret>
-std::ostream& operator<<(std::ostream& os, const Function_<F,Ret>& f) {
+template<typename F, typename Classes, typename Ret>
+std::ostream& operator<<(std::ostream& os, const Function_<F,Classes,Ret>& f) {
 	os<<f.impl()(); return os;
 }
 
@@ -260,8 +277,8 @@ public:
 	}
 };
 //General case for 1 or more parameters
-template<typename F, typename Ret, typename Arg, typename... Args>
-class Function_<F,Ret,Arg,Args...> : public FunctionBase<F> {
+template<typename F, typename Classes, typename Ret, typename Arg, typename... Args>
+class Function_<F,Classes, Ret,Arg,Args...> : public FunctionBase<F> {
 public:
 	using FunctionBase<F>::FunctionBase;
 	
@@ -273,14 +290,14 @@ public:
 		return function<Args...,Ret>(Curried<decltype(this->f),std::remove_cvref_t<Arg>>(this->f,arg));
 	}
 	
-	template<typename FArg>
-	auto operator()(Function_<FArg,Arg>&& arg) const {//Currying with lazy evaluation
-		return function<Args...,Ret>(Curried<decltype(this->f),std::remove_cvref_t<Function_<FArg,Arg>>>(this->f,std::forward<Function_<FArg,Arg>>(arg)));	
+	template<typename FArg, typename FClasses>
+	auto operator()(Function_<FArg,FClasses,Arg>&& arg) const {//Currying with lazy evaluation
+		return function<Classes,Args...,Ret>(Curried<decltype(this->f),std::remove_cvref_t<Function_<FArg,FClasses,Arg>>>(this->f,std::forward<Function_<FArg,FClasses,Arg>>(arg)));	
 	}
 	
-	template<typename FArg>
-	auto operator()(const Function_<FArg,Arg>& arg) const {//Currying with lazy evaluation
-		return function<Args...,Ret>(Curried<decltype(this->f),std::remove_cvref_t<Function_<FArg,Arg>>>(this->f,arg));	
+	template<typename FArg, typename FClasses>
+	auto operator()(const Function_<FArg,FClasses,Arg>& arg) const {//Currying with lazy evaluation
+		return function<Classes,Args...,Ret>(Curried<decltype(this->f),std::remove_cvref_t<Function_<FArg,FClasses,Arg>>>(this->f,arg));	
 	}
 
 	//A1 instead of Arg in order to enable lazy evaluation of parameters.
@@ -292,33 +309,37 @@ public:
 };
 
 //General case for 1 or more parameters with a generic argument
-template<typename F, typename Ret, std::size_t I, typename... Args>
-class Function_<F,Ret,Generic<I>,Args...> : public FunctionBase<F> {
+template<typename F, typename Classes, typename Ret, std::size_t I, typename... Args>
+class Function_<F,Classes,Ret,Generic<I>,Args...> : public FunctionBase<F> {
 public:
 	using FunctionBase<F>::FunctionBase;
 	
 	template<typename Arg> //It is indeed generic
 	auto operator()(Arg&& arg) const { //Currying
-		//We would need to replace Generic<I> with Arg in Args... and Ret
-		return function_replace<I,Arg,Args...,Ret>(Curried<decltype(this->f),std::remove_cvref_t<Arg>>(this->f,std::forward<Arg>(arg)));
+		//We will need to static assesrt the class of Arg
+		//We need to replace Generic<I> with Arg in Args... and Ret
+		return function_replace<Classes,I,Arg,Args...,Ret>(Curried<decltype(this->f),std::remove_cvref_t<Arg>>(this->f,std::forward<Arg>(arg)));
 	}
 
 	template<typename Arg> //It is indeed generic	
 	auto operator()(const Arg& arg) const { //Currying
+		//We will need to static assesrt the class of Arg
 		//We would need to replace Generic<I> with Arg in Args... and Ret
-		return function_replace<I,Arg,Args...,Ret>(Curried<decltype(this->f),std::remove_cvref_t<Arg>>(this->f,arg));
+		return function_replace<Classes,I,Arg,Args...,Ret>(Curried<decltype(this->f),std::remove_cvref_t<Arg>>(this->f,arg));
 	}
 	
-	template<typename FArg, typename Arg> // It is indeed generic
-	auto operator()(Function_<FArg,Arg>&& arg) const {//Currying with lazy evaluation
+	template<typename FArg, typename FClasses, typename Arg> // It is indeed generic
+	auto operator()(Function_<FArg,FClasses,Arg>&& arg) const {//Currying with lazy evaluation
+		//We will need to static assesrt the class of Arg
 		//We would need to replace Generic<I> with Arg in Args... and Ret
-		return function_replace<I,Arg,Args...,Ret>(Curried<decltype(this->f),std::remove_cvref_t<Function_<FArg,Arg>>>(this->f,std::forward<Function_<FArg,Arg>>(arg)));	
+		return function_replace<Classes,I,Arg,Args...,Ret>(Curried<decltype(this->f),std::remove_cvref_t<Function_<FArg,FClasses,Arg>>>(this->f,std::forward<Function_<FArg,FClasses,Arg>>(arg)));	
 	}
 	
-	template<typename FArg, typename Arg> // It is indeed generic
-	auto operator()(const Function_<FArg,Arg>& arg) const {//Currying with lazy evaluation
+	template<typename FArg, typename FClasses, typename Arg> // It is indeed generic
+	auto operator()(const Function_<FArg,FClasses,Arg>& arg) const {//Currying with lazy evaluation
+		//We will need to static assesrt the class of Arg
 		//We would need to replace Generic<I> with Arg in Args... and Ret
-		return function_replace<I,Arg, Args...,Ret>(Curried<decltype(this->f),std::remove_cvref_t<Function_<FArg,Arg>>>(this->f,arg));	
+		return function_replace<Classes,I,Arg, Args...,Ret>(Curried<decltype(this->f),std::remove_cvref_t<Function_<FArg,FClasses,Arg>>>(this->f,arg));	
 	}
 	
 	//A1 instead of Arg in order to enable lazy evaluation of parameters, although
