@@ -51,19 +51,18 @@ public:
 };
 
 
-template<typename List, typename Function>
+template<typename Function, typename List>
 auto map_(Function&& function, List&& list)
-{	return Mapped<typename std::remove_reference<List>::type, typename std::remove_reference<Function>::type>
+{	return Mapped<typename std::remove_reference<Function>::type, typename std::remove_reference<List>::type>
 		(std::forward<Function>(function), std::forward<List>(list));  }
 		
 
 /**************************************
  * fun::API                           *
  **************************************/
-auto map   = function<type<Function,generic::a,generic::b>,type<List,generic::a>,type<List,generic::b>([] (auto&& p1, auto&& p2) {
-	return map_(std::forward(p1), std::forward(p2));
+auto map   = function<type<Function,generic::a,generic::b>,type<List,generic::a>,type<List,generic::b>>([] (auto&& p1, auto&& p2) {
+	return map_(p1,p2);
 });
 
 }; //namespace fun
 
-#endif

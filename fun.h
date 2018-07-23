@@ -19,6 +19,8 @@
 #include "prelude/integral.h"
 #include "prelude/floating.h"
 
+#include "core/list/higher-order/map.h"
+
 
 
 
