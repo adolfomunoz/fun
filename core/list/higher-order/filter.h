@@ -2,15 +2,15 @@
 #define _FUNCTIONAL_FILTER_H_
 
 #include "../../function/function.h"
-#include "../core/forward-list.h"
+#include "../iterable-list.h"
+#include "../type.h"
 #include <utility>
 #include <type_traits>
-#include <memory>
 
 namespace fun {
 
 template<typename Predicate, typename List>
-class Filtered : public ForwardListImpl<Filtered<Predicate, List>, typename List::value_type>
+class Filtered : public IterableListImpl<Filtered<Predicate, List>, typename List::value_type>
 {
 private:
 	List list;
@@ -30,7 +30,7 @@ public:
 		
 		//(*i) is evaluated twice for filtered data, once for the predicate and once in get. We cannot 
 		//do it otherwise because we would need to use assignment.
-		//An advance implementation would use assignment for assignable types and this way for non-assignabe.
+		//An advanced implementation would use assignment for assignable types and this way for non-assignabe.
 		void advance() { 
 			while( (i!=f.list.end()) && (!f.predicate(*i)) ) ++i; 
 		}
@@ -47,20 +47,19 @@ public:
 	const_iterator_local end_local()   const { return const_iterator_local(list.end(),   *this); }
 };
 
-/*
-template<typename List, typename Predicate>
+
+template<typename Predicate, typename List>
 auto filter_(Predicate&& predicate, List&& list)
-{	return Filtered<typename std::remove_reference<List>::type,typename std::remove_reference<Predicate>::type>
+{	return Filtered<typename std::remove_reference<Predicate>::type,typename std::remove_reference<List>::type>
 		(std::forward<Predicate>(predicate), std::forward<List>(list));  }
-*/
+
 
 /**************************************
  * fun::API                           *
  **************************************/
-auto filter = function<2>([] (auto&& p1, auto&& p2) { 
-	return Filtered<typename std::remove_reference<decltype(p1)>::type,typename std::remove_reference<decltype(p2)>::type>
-		(std::forward<decltype(p1)>(p1), std::forward<decltype(p2)>(p2)); 
-});
+auto filter   = function<type<Function,generic::a,bool>,type<List,generic::a>,type<List,generic::a>>(
+	[] (auto&& p1, auto&& p2) {	return filter_(p1,p2);	}
+);
 
 
 }; //namespace fun

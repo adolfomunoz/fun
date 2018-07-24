@@ -60,9 +60,9 @@ auto map_(Function&& function, List&& list)
 /**************************************
  * fun::API                           *
  **************************************/
-auto map   = function<type<Function,generic::a,generic::b>,type<List,generic::a>,type<List,generic::b>>([] (auto&& p1, auto&& p2) {
-	return map_(p1,p2);
-});
+auto map   = function<type<Function,generic::a,generic::b>,type<List,generic::a>,type<List,generic::b>>(
+	[] (auto&& p1, auto&& p2) {	return map_(p1,p2);	}
+);
 
 }; //namespace fun
 

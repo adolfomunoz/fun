@@ -34,6 +34,13 @@ public:
 	static std::string name() { return std::string("[")+typeinfo<T>::name()+"]"; }
 };
 
+template<typename T> 
+struct typeinfo<type<List,T>> {
+public:
+	static std::string name() { return std::string("[")+typeinfo<T>::name()+"]"; }
+};
+
+
 
 
 

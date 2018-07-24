@@ -11,6 +11,14 @@
 #include "core/type/classes.h"
 #include "core/type/typeinfo.h"
 
+#include "core/tuple/typeinfo.h"
+
+#include "core/list/type.h"
+#include "core/list/typeinfo.h"
+#include "core/list/higher-order/map.h"
+#include "core/list/higher-order/filter.h"
+#include "core/list/higher-order/zip.h"
+
 #include "prelude/misc.h"
 #include "prelude/tuples.h"
 #include "prelude/eq.h"
@@ -19,7 +27,7 @@
 #include "prelude/integral.h"
 #include "prelude/floating.h"
 
-#include "core/list/higher-order/map.h"
+
 
 
 

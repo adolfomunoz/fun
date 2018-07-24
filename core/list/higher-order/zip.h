@@ -2,18 +2,17 @@
 #define _FUNCTIONAL_ZIPWITH_H_
 
 #include "../../function/function.h"
-#include "../core/forward-list.h"
+#include "../iterable-list.h"
+#include "../type.h"
 #include <type_traits>
 #include <tuple>
 #include <functional>
 #include <utility>
-#include <memory>
-#include <iostream>
 
 namespace fun {
 
 template<typename Function, typename List1, typename List2>
-class ZippedWith : public ForwardListImpl<ZippedWith<Function,List1,List2>,decltype(std::declval<Function>()(std::declval<typename List1::value_type>(), std::declval<typename List2::value_type>()))>
+class ZippedWith : public IterableListImpl<ZippedWith<Function,List1,List2>,decltype(std::declval<Function>()(std::declval<typename List1::value_type>(), std::declval<typename List2::value_type>()))>
 {
 	List1 list1;
 	List2 list2; 
@@ -36,7 +35,7 @@ public:
 	ZippedWith(const Function& function, const List1& list1, const List2& list2):
 		list1(list1), list2(list2), function(function) { }
 
-	using value_type= typename ForwardListImpl<ZippedWith<Function,List1,List2>,decltype(std::declval<Function>()(std::declval<typename List1::value_type>(), std::declval<typename List2::value_type>()))>::value_type;
+	using value_type= typename IterableListImpl<ZippedWith<Function,List1,List2>,decltype(std::declval<Function>()(std::declval<typename List1::value_type>(), std::declval<typename List2::value_type>()))>::value_type;
 
 	class const_iterator_local 
 	{
@@ -58,10 +57,10 @@ public:
 	const_iterator_local end_local()   const { return const_iterator_local(list1.end(),   list2.end(),   this);  }
 };
 
-/*
-template<typename List1, typename List2, typename Function>
+
+template<typename Function, typename List1, typename List2>
 auto zipWith_(Function&& function, List1&& list1, List2&& list2)
-{	return ZippedWith<typename std::remove_reference<List1>::type, typename std::remove_reference<List2>::type,typename std::remove_reference<Function>::type>(
+{	return ZippedWith<typename std::remove_reference<Function>::type,typename std::remove_reference<List1>::type, typename std::remove_reference<List2>::type>(
 		std::forward<Function>(function), 
 		std::forward<List1>(list1), 
 		std::forward<List2>(list2)); 
@@ -69,34 +68,24 @@ auto zipWith_(Function&& function, List1&& list1, List2&& list2)
 
 
 
+
 template<typename List1, typename List2>
-auto zip(const List1& list1, const List2& list2) 
-		-> decltype(zipWith(std::function<std::tuple<typename List1::value_type, typename List2::value_type>
-			(typename List1::value_type, typename List2::value_type)>
-			(std::make_tuple<typename List1::value_type, typename List2::value_type>), list1, list2))
-{
-	return zipWith(
-		std::function<std::tuple<typename List1::value_type, typename List2::value_type>
-			(typename List1::value_type, typename List2::value_type)>
-		(std::make_tuple<typename List1::value_type, typename List2::value_type>), list1, list2);
+auto zip_(List1&& list1, List2&& list2) {
+	return zipWith_([] (auto&& o1, auto&& o2) { return std::tuple(
+				std::forward<typename std::remove_cvref_t<List1>::value_type>(o1), 
+				std::forward<typename std::remove_cvref_t<List2>::value_type>(o2)); }, list1, list2);
 }
-*/
+
 
 
 
 /**************************************
  * fun::API                           *
  **************************************/
-auto zipWith = function<3>([] (auto&& p1, auto&& p2, auto&& p3) { 
-	return ZippedWith<
-		typename std::remove_reference<decltype(p1)>::type,
-		typename std::remove_reference<decltype(p2)>::type,
-		typename std::remove_reference<decltype(p3)>::type>
-		(	std::forward<decltype(p1)>(p1),
-		    std::forward<decltype(p2)>(p2),
-			std::forward<decltype(p3)>(p3));
-});
-auto zip     = function<2>([] (auto&& l1, auto&& l2) { return zipWith([] (auto o1, auto o2) { return std::make_tuple(o1, o2); }, l1, l2); });
+auto zipWith = function<type<Function,generic::a, generic::b, generic::c>, 
+     type<List,generic::a>, type<List,generic::b>, type<List, generic::c>>([] (auto&& p1, auto&& p2, auto&& p3) { return zipWith(p1,p2,p3); });
+
+auto zip     = function<type<List,generic::a>, type<List,generic::b>,type<List,type<Tuple,generic::a,generic::b>>>([] (auto&& l1, auto&& l2) { return zip_(l1, l2); });
 
 
 }; //namespace fun
