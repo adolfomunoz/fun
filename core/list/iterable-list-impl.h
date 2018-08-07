@@ -86,6 +86,12 @@ protected:
 	{	return std::make_unique<L>(static_cast<const L&>(*this));    }
 };
 
+//THIS BELOW IS A TEMPORARY FIX
+template<typename A1, typename A2>
+std::ostream& operator<<(std::ostream& os, const std::tuple<A1,A2>& t) {
+	os<<"("<<std::get<0>(t)<<","<<std::get<1>(t)<<")";
+	return os;
+}
 
 template<typename L, typename T>
 std::ostream& operator<<(std::ostream& os, const IterableListImpl<L,T>& list) {

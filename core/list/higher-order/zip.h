@@ -1,5 +1,4 @@
-#ifndef _FUNCTIONAL_ZIPWITH_H_
-#define _FUNCTIONAL_ZIPWITH_H_
+#pragma once
 
 #include "../../function/function.h"
 #include "../iterable-list.h"
@@ -71,9 +70,7 @@ auto zipWith_(Function&& function, List1&& list1, List2&& list2)
 
 template<typename List1, typename List2>
 auto zip_(List1&& list1, List2&& list2) {
-	return zipWith_([] (auto&& o1, auto&& o2) { return std::tuple(
-				std::forward<typename std::remove_cvref_t<List1>::value_type>(o1), 
-				std::forward<typename std::remove_cvref_t<List2>::value_type>(o2)); }, list1, list2);
+	return zipWith_([] (auto&& o1, auto&& o2) { return std::tuple<typename std::remove_cvref_t<List1>::value_type, typename std::remove_cvref_t<List2>::value_type>(o1,o2); }, list1, list2);
 }
 
 
@@ -83,11 +80,9 @@ auto zip_(List1&& list1, List2&& list2) {
  * fun::API                           *
  **************************************/
 auto zipWith = function<type<Function,generic::a, generic::b, generic::c>, 
-     type<List,generic::a>, type<List,generic::b>, type<List, generic::c>>([] (auto&& p1, auto&& p2, auto&& p3) { return zipWith(p1,p2,p3); });
+     type<List,generic::a>, type<List,generic::b>, type<List, generic::c>>([] (auto&& p1, auto&& p2, auto&& p3) { return zipWith_(p1,p2,p3); });
 
 auto zip     = function<type<List,generic::a>, type<List,generic::b>,type<List,type<Tuple,generic::a,generic::b>>>([] (auto&& l1, auto&& l2) { return zip_(l1, l2); });
 
 
 }; //namespace fun
-
-#endif

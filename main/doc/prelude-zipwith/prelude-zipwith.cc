@@ -15,15 +15,15 @@ std::ostream& operator<<(std::ostream& os, const std::array<T,N>& v) {
 	return os;
 }
 
-#define SHOW(x) std::cout<<#x " = "<<x<<std::endl;
+#define SHOW(x) std::cout<<#x " = "<<std::flush<<x<<std::endl;
 #define SHOWTYPE(x) std::cout<<"Type of " #x " = "<<typeinfo<decltype(x)>::name()<<std::endl;
 using namespace fun;
 int main(int argc, char** argv) {
 	//map (a->b) -> [a] -> [b] 
 	std::array<int,5> d1{{-1,2,-3,4,-5}};
-	std::array<char,4> d2{{'a','b','c','d'}};
-	SHOWTYPE(zip)
+	std::array<int,4> d2{{2,-1,3,-2}};
+	SHOWTYPE(zipWith)
 	SHOW(d1);
 	SHOW(d2);
-	SHOW(zip(d1,d2));
+	SHOW(zipWith(_+_,d1,d2));
 }
