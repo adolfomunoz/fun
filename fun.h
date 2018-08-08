@@ -1,4 +1,7 @@
 #include "core/function/function.h"
+#include "core/function/function-lazy.h"
+#include "core/function/function-currying.h"
+#include "core/function/function-construction.h"
 #include "core/function/function-type.h"
 #include "core/function/function-function-parameter.h"
 #include "core/function/compose.h"

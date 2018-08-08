@@ -6,6 +6,9 @@
 namespace fun {
 
 namespace detail {
+	template<typename T>
+	struct function_from_type_aux{};
+	
 	template<typename... Args> 
 	struct function_from_type_aux<type<Function,Args...>> { 
 		template<typename F>
@@ -23,6 +26,10 @@ namespace detail {
 	};
 }
 
+template<typename T, typename F>
+auto function_from_type(F&& f) {
+	return detail::function_from_type_aux<T>::generate(std::forward<F>(f));
+}
 
 //General case for 1 or more parameters with a type argument 
 template<typename F, typename Classes, typename Ret, typename... TypeArgs, typename... Args>
