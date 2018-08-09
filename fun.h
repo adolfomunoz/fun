@@ -22,6 +22,7 @@
 #include "core/list/higher-order/map.h"
 #include "core/list/higher-order/filter.h"
 #include "core/list/higher-order/zip.h"
+#include "core/list/recursive-list-constructors.h"
 
 #include "prelude/misc.h"
 #include "prelude/tuples.h"

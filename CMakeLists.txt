@@ -13,7 +13,7 @@ ENDIF(NOT CMAKE_CONFIGURATION_TYPES AND NOT CMAKE_BUILD_TYPE)
 
 # Select flags.
 if ( ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang") OR ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU") OR ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Intel") )
-    set(CMAKE_CXX_FLAGS         "-std=c++17 -Wall")
+    set(CMAKE_CXX_FLAGS         "-std=c++17 -Wall -Wfatal-errors")
     set(CMAKE_CXX_FLAGS_DEBUG   "-O0 -g")
     set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "-O2 -g")
     set(CMAKE_CXX_FLAGS_RELEASE "-O3 -DNDEBUG -mtune=native")

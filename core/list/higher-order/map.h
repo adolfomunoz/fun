@@ -53,7 +53,7 @@ public:
 
 template<typename Function, typename List>
 auto map_(Function&& function, List&& list)
-{	return Mapped<typename std::remove_reference<Function>::type, typename std::remove_reference<List>::type>
+{	return Mapped<std::decay_t<Function>, std::decay_t<List>>
 		(std::forward<Function>(function), std::forward<List>(list));  }
 		
 

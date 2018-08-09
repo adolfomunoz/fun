@@ -49,7 +49,7 @@ namespace detail {
 		}
 		template<typename R, typename... A>
 		static constexpr auto generate(R f(A...)) {
-			return (typename function_replace_generic<decltype(f),Classes, I, NewType,Args...>::type)(f); 			
+			return (typename function_replace_generic<decltype(f),Classes, I, NewType,Args...>::type)(f);
 		}
 	};
 };

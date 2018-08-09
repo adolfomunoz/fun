@@ -64,5 +64,6 @@ template<typename F, typename Classes, typename Ret>
 std::ostream& operator<<(std::ostream& os, const Function_<F,Classes,Ret>& f) {
 	os<<f.impl()(); return os;
 }
+
 	
 }
