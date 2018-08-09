@@ -4,6 +4,7 @@
 #include "core/function/function-construction.h"
 #include "core/function/function-type.h"
 #include "core/function/function-function-parameter.h"
+#include "core/function/function-recursive.h"
 #include "core/function/compose.h"
 #include "core/function/apply.h"
 #include "core/function/type.h" 

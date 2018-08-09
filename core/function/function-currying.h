@@ -87,14 +87,15 @@ class Curried<F&,Arg> {
 	F& f;
 	Arg arg;
 public:
-	Curried(const F& f, Arg&& arg) : f(f), arg(std::forward<Arg>(arg))             { }
-	Curried(const F& f, const Arg& arg) : f(f), arg(arg)                           { }
+	Curried(const F& f, Arg&& arg) : f(f), arg(std::forward<Arg>(arg)) { }
+	Curried(const F& f, const Arg& arg) : f(f), arg(arg)               { }
 
 	template<typename... Args>
 	auto operator()(Args&&... args) const {
 		return f(arg, std::forward<Args>(args)...);
 	}
 };
+
 //General case for 1 or more parameters
 template<typename F, typename Classes, typename Ret, typename Arg, typename... Args>
 class Function_<F,Classes, Ret,Arg,Args...> : public FunctionBase<F> {
@@ -111,12 +112,13 @@ public:
 	
 	template<typename FArg, typename FClasses>
 	auto operator()(Function_<FArg,FClasses,Arg>&& arg) const {//Currying with lazy evaluation
-		return function<Classes,Args...,Ret>(Curried<decltype(this->f),std::remove_cvref_t<Function_<FArg,FClasses,Arg>>>(this->f,std::forward<Function_<FArg,FClasses,Arg>>(arg)));	
+		return function<Classes,Args...,Ret>(Curried<decltype(this->f),
+		std::decay_t<Function_<FArg,FClasses,Arg>>>(this->f,std::forward<Function_<FArg,FClasses,Arg>>(arg)));	
 	}
 	
 	template<typename FArg, typename FClasses>
 	auto operator()(const Function_<FArg,FClasses,Arg>& arg) const {//Currying with lazy evaluation
-		return function<Classes,Args...,Ret>(Curried<decltype(this->f),std::remove_cvref_t<Function_<FArg,FClasses,Arg>>>(this->f,arg));	
+		return function<Classes,Args...,Ret>(Curried<decltype(this->f),std::decay_t<Function_<FArg,FClasses,Arg>>>(this->f,arg));	
 	}
 
 	//A1 instead of Arg in order to enable lazy evaluation of parameters.
@@ -138,7 +140,7 @@ public:
 		static_assert(class_check<Classes,I,Arg>::value, "Generic type is not an instance of class.");
 		//We will need to static assesrt the class of Arg
 		//We need to replace Generic<I> with Arg in Args... and Ret
-		return function_replace<Classes,I,Arg,Args...,Ret>(Curried<decltype(this->f),std::remove_cvref_t<Arg>>(this->f,std::forward<Arg>(arg)));
+		return function_replace<Classes,I,Arg,Args...,Ret>(Curried<decltype(this->f),std::decay_t<Arg>>(this->f,std::forward<Arg>(arg)));
 	}
 
 	template<typename Arg> //It is indeed generic	
@@ -152,14 +154,14 @@ public:
 	auto operator()(Function_<FArg,FClasses,Arg>&& arg) const {//Currying with lazy evaluation
 		static_assert(class_check<Classes,I,Arg>::value, "Generic type is not an instance of class.");
 		//We would need to replace Generic<I> with Arg in Args... and Ret
-		return function_replace<Classes,I,Arg,Args...,Ret>(Curried<decltype(this->f),std::remove_cvref_t<Function_<FArg,FClasses,Arg>>>(this->f,std::forward<Function_<FArg,FClasses,Arg>>(arg)));	
+		return function_replace<Classes,I,Arg,Args...,Ret>(Curried<decltype(this->f),std::decay_t<Function_<FArg,FClasses,Arg>>>(this->f,std::forward<Function_<FArg,FClasses,Arg>>(arg)));	
 	}
 	
 	template<typename FArg, typename FClasses, typename Arg> // It is indeed generic
 	auto operator()(const Function_<FArg,FClasses,Arg>& arg) const {//Currying with lazy evaluation
 		static_assert(class_check<Classes,I,Arg>::value, "Generic type is not an instance of class.");
 		//We would need to replace Generic<I> with Arg in Args... and Ret
-		return function_replace<Classes,I,Arg, Args...,Ret>(Curried<decltype(this->f),std::remove_cvref_t<Function_<FArg,FClasses,Arg>>>(this->f,arg));	
+		return function_replace<Classes,I,Arg, Args...,Ret>(Curried<decltype(this->f),std::decay_t<Function_<FArg,FClasses,Arg>>>(this->f,arg));	
 	}
 	
 	//A1 instead of Arg in order to enable lazy evaluation of parameters, although

@@ -44,11 +44,11 @@ namespace detail {
 	struct function_aux { 
 		template<typename F>
 		static constexpr auto generate(F&& f) {
-			return (typename function_reorder<std::remove_cvref_t<F>,classes_default_t,Args...>::type)(std::forward<F>(f)); 
+			return (typename function_reorder<std::decay_t<F>,classes_default_t,Args...>::type)(std::forward<F>(f)); 
 		}
 		template<typename F>
 		static constexpr auto generate(const F& f) {
-			return (typename function_reorder<std::remove_cvref_t<F>,classes_default_t,Args...>::type)(f); 
+			return (typename function_reorder<std::decay_t<F>,classes_default_t,Args...>::type)(f); 
 		}
 		template<typename R, typename... A>
 		static constexpr auto generate(R f(A...)) {
@@ -60,11 +60,11 @@ namespace detail {
 	struct function_aux<std::tuple<Classes...>,Args...> {
 		template<typename F>
 		static constexpr auto generate(F&& f) {
-			return (typename function_reorder<std::remove_cvref_t<F>,std::tuple<Classes...>,Args...>::type)(std::forward<F>(f)); 
+			return (typename function_reorder<std::decay_t<F>,std::tuple<Classes...>,Args...>::type)(std::forward<F>(f)); 
 		}
 		template<typename F>
 		static constexpr auto generate(const F& f) {
-			return (typename function_reorder<std::remove_cvref_t<F>,std::tuple<Classes...>,Args...>::type)(f); 
+			return (typename function_reorder<std::decay_t<F>,std::tuple<Classes...>,Args...>::type)(f); 
 		}
 		template<typename R, typename... A>
 		static constexpr auto generate(R f(A...)) {

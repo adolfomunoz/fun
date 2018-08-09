@@ -52,7 +52,7 @@ class Function_<F,Classes, Generic<I>> : public FunctionBase<F> {
 public:
 	//NEED STATIC ASSERT HERE FOR CHECKING CLASS
 	using FunctionBase<F>::FunctionBase;
-	using Ret = decltype(std::declval<F>()());
+	using Ret = typename std::decay_t<decltype(std::declval<F>()())>;
 
 	static_assert(class_check<Classes,I,Ret>::value, "Generic type is not an instance of class.");
 	Evaluator<Ret> evaluator;

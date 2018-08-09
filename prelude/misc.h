@@ -18,5 +18,10 @@ auto flip = function<type<Function,generic::a,generic::b,generic::c>,generic::b,
 auto until = function<type<Function, generic::a, bool>, type<Function, generic::a, generic::a>, generic::a, generic::a>(
 	[] (const auto& pred, const auto& f, const auto& x) { auto y = x; while(!pred(y)) y=f(y); return y; });
 
-
+	/**
+auto ifthenelse = function<bool, generic::a,generic::a,generic::a>(
+	[] (bool cond, const auto& iftrue, const auto& iffalse) {
+		if (cond) return iftrue; else return iffalse;
+	});
+	**/
 }
