@@ -19,6 +19,18 @@ struct And {
 		static constexpr bool value = check1::value && check2::value;
 	};
 };
+
+template<typename C>
+struct And<None,C> {
+	template<typename T>
+	using check = typename C::template check<T>;
+};
+
+template<typename C>
+struct And<C,None> {
+	template<typename T>
+	using check = typename C::template check<T>;
+};
 	
 struct classes_default {
 	using type = std::tuple<None>;
