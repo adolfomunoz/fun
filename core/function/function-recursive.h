@@ -19,7 +19,7 @@ public:
 
 template<typename A1, typename... Args, typename F>
 auto function_recursive(F&& f) {
-	return function<A1, Args...>(FunctionRecursive<F,A1,Args...>(std::forward<F>(f)));
+	return function<A1, Args...>(FunctionRecursive<std::decay_t<F>,A1,Args...>(std::forward<F>(f)));
 }	
 
 }
