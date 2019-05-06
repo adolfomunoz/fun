@@ -6,69 +6,120 @@
 
 namespace fun {
 	
-template<typename Classes, typename Arg, typename... Args> 
-struct PatternFunction { 
-	using return_type = typename PatternFunction<Classes,Args...>::return_type;
-};
-
-template<typename Classes, typename Ret> 
-struct PatternFunction { 
-	using return_type = Arg;
-};
 
 class PatternMatchingException : public std::exception {
 public:
-	const char* what() const override { return "None of the patterns matched the input."; }
+	const char* what() const noexcept override { return "Non-exhaustive patterns."; }
 };
 
+
+/*
+template<typename... Clauses>
+class Pattern {
+public:
+	template<typename F, typename... Args>
+	auto match_and_evaluate(const F& f, Args&&... args) const {
+		return std::nullopt;
+	}
+};
+*/
+
+template<typename Clause, typename... Clauses>
+class Pattern {
+	Clause clause;
+	Pattern<Clauses...> pattern_rest;
+	
+	template <typename F>
+	auto eval(const F& f, std::tuple<>&& args) const {
+		return f();
+	}
+	
+	template <typename F, typename... Args>
+	auto eval(const F& f, std::tuple<Args...>&& args) const {
+		return std::invoke(f,std::forward<std::tuple<Args...>>(args));
+	}
+public:
+	Pattern(Clause&& clause, Pattern<Clauses...>&& pattern_rest) :
+		clause(std::forward<Clause>(clause)), pattern_rest(std::forward<Pattern<Clauses...>>(pattern_rest)) { }
+
+	template<typename F, typename Arg, typename... Args2>
+	auto match_and_evaluate(const F& f, Arg&& a, Args2&&... args) const -> 
+			std::optional<decltype(pattern_rest.match_and_evaluate(eval(f, clause.params(std::forward<Arg>(a))),std::forward<Args2>(args)...))> {
+		if (clause.match(std::forward<Arg>(a))) return pattern_rest.match_and_evaluate(eval(f, clause.params(std::forward<Arg>(a))),std::forward<Args2>(args)...);
+		else return {};
+	}	
+};
+
+template<typename Clause>
+class Pattern<Clause> {
+	Clause clause;
+
+	template <typename F>
+	auto eval(const F& f, std::tuple<>&& args) const {
+		return f();
+	}
+	
+	template <typename F, typename... Args>
+	auto eval(const F& f, std::tuple<Args...>&& args) const {
+		return std::invoke(f,std::forward<std::tuple<Args...>>(args));
+	}
+public:
+	Pattern(Clause&& clause) : clause(std::forward<Clause>(clause)) { }
+
+	template<typename F, typename Arg>
+	auto match_and_evaluate(const F& f, Arg&& a) const -> std::optional<decltype(this->eval(f,clause.params(std::forward<Arg>(a))))>{
+		if (clause.match(std::forward<Arg>(a))) return eval(f, clause.params(std::forward<Arg>(a)));
+		else return {};
+	}	
+};
+
+//Maybe later we need to add back the function so we check that the patterns make sense
+
+/*
 template<typename PF, typename... Patterns>
 class PatternMatching { 
 public:
 	template<typename... Args>
 	int operator()(Args&&... args) const { throw(PatternMatchingException()); }
 };
+*/
 
-template<typename Classes, typename... Args, typename Pattern1, typename Function1, typename... Rest>
-class PatternMatching<PatternFunction<Classes,Args...>,Pattern1,Function1,Rest...> { 
+template<typename Pattern1, typename Function1, typename... Rest>
+class PatternMatching { 
 	Pattern1  p;
 	Function1 f;
-	PatternMatching<PatternFunction<Classes,Args...>,Rest...> rest;
+	PatternMatching<Rest...> rest;
 public:
-	template<typename... Args>
-	auto operator()(Args&& args) const { 
-		return p.match_and_evaluate(f,std::forward<Args>(args)...).value_or(rest(std::forward<Args>(args)...));
+	PatternMatching(const Pattern1& p, const Function1& f, const Rest&... r) :
+		p(p),f(f), rest(r...) {}
+
+	template<typename... Args2>
+	auto operator()(Args2&&... args) const { 
+		return p.match_and_evaluate(f,std::forward<Args2>(args)...).value_or(rest(std::forward<Args2>(args)...));
 	}
 };
 
-template<typename... Clauses>
-class Pattern {
+template<typename Pattern1, typename Function1>
+class PatternMatching<Pattern1,Function1> { 
+	Pattern1  p;
+	Function1 f;
 public:
-	template<typename F, typename... Args>
-	auto match_and_evaluate(F&& f, Args&&... args) const {
-		return nullopt;
+	PatternMatching(const Pattern1& p, const Function1& f) :
+		p(p),f(f) {}
+
+	template<typename... Args2>
+	auto operator()(Args2&&... args) const { 
+		auto the_optional = p.match_and_evaluate(f,std::forward<Args2>(args)...);
+		if (the_optional.has_value()) return the_optional.value();
+		else throw PatternMatchingException();
 	}
 };
 
-template<typename Clause, typename... Clauses>
-class Pattern<Clause, Clauses...> {
-	Clause clause;
-	Pattern<Clauses...> pattern_rest;
-	
-	template <typename F, typename A2, typename... Args2>
-	auto eval(F&& f, A2&& a, Args2&&... args) const {
-		return pattern_rest.match_and_evaluate(
-			std::invoke(f,clause.params(std::forward<A2>(a))),std::forward<Args2>(args)...);
-	}
-public:
-	Pattern(Clause&& clause, Pattern<Clauses...>&& pattern_rest) :
-		clause(std::forward<Clause>(clause)), pattern_rest(std::forward<Pattern<Clauses...>>(pattern_rest)) { }
+template<typename Pattern1, typename Function1, typename... Rest>
+PatternMatching<Pattern1,Function1,Rest...> function_pattern_matching(Pattern1&& p1, Function1&& f1, Rest&&... rest) {
+	return PatternMatching<std::decay_t<Pattern1>,std::decay_t<Function1>,std::decay_t<Rest>...>(std::forward<Pattern1>(p1), std::forward<Function1>(f1), std::forward<Rest>(rest)...);
+}
 
-	template<typename F, typename A2, typename... Args2>
-	std::optional<decltype(eval(std::declval<F>(),std::declval<A2>(),std::declval<Args>()...))>  match_and_evaluate(F&& f, A2&& a, Args2&&... args) const {
-		if (clause.match(std::forward<A2>(a))) return eval(std::forward<F>(f), std::forward<A2>(a),std::forward<Args2>(args)...);
-		else return {};
-	}	
-};
 
 class ClauseWildcard {
 public:
@@ -76,7 +127,7 @@ public:
 	constexpr bool match(const Arg& arg)  const { return true;    }
 	
 	template<typename Arg>
-	constexpr auto params(const Arg& arg) const { std::tuple<>(); }
+	constexpr auto params(const Arg& arg) const { return std::tuple<>(); }
 };
 
 template<typename Value>
@@ -85,24 +136,14 @@ class ClauseConstant {
 	
 public:
 	ClauseConstant(Value&& v) : v(std::forward<Value>(v)) {}
-	ClauseConstant(const Value& v) : v(v);
+	ClauseConstant(const Value& v) : v(v) {}
 
 	template<typename Arg>
 	constexpr bool match(const Arg& arg)  const { return arg==v;    }
 	
 	template<typename Arg>
-	constexpr auto params(const Args& arg) const { std::tuple<>(); }
+	constexpr auto params(const Arg& arg) const { return std::tuple<>(); }
 };
-
-class ClauseWildcard {
-public:
-	template<typename Arg>
-	constexpr bool match(const Arg& arg)  const { return true;    }
-	
-	template<typename Arg>
-	constexpr auto params(const Arg& arg) const { std::tuple<>(); }
-};
-
 
 class ClauseAsIs {
 public:
@@ -110,7 +151,7 @@ public:
 	constexpr bool match(const Arg& arg)  const { return true;    }
 	
 	template<typename Arg>
-	constexpr auto params(Arg&& arg) const { std::make_tuple(std::forward<Arg>(arg)); }
+	constexpr auto params(Arg&& arg) const { return std::make_tuple(std::forward<Arg>(arg)); }
 };
 
 ClauseAsIs _x; //So the symbol _x means "get this stuff" as oposed to "ignore this stuff".
@@ -118,28 +159,36 @@ ClauseAsIs _x; //So the symbol _x means "get this stuff" as oposed to "ignore th
 template<typename C>
 struct IsClause {
 	template<typename U>
-	static auto test(U*) -> typename std::is_same<decltype(std::declval<U>().match(nullptr)), bool>::type;
+	static auto test(U*) -> typename std::is_same<decltype(std::declval<U>().match(nullptr)), bool>;
 	template<typename>
 	static constexpr std::false_type test(...);
 
-	static constexpr bool value = decltype(test<T>(nullptr))::value; 
+	static constexpr bool value = decltype(test<C>(nullptr))::value; 
 };
 
-template<typename Clause, bool is_clause == typename IsClause<Clause>::value>
-struct AsClause {		using type = std::decay_t<Clause>;		};
-template<typename Value>
-struct AsClause<Value,false> {		using type = ClauseConstant;		};
 
-template<typename Clause, typename Clauses...>
-auto pattern(Clause&& clause, Clauses&&... clauses) {
-	return Pattern<typename AsClause<Clause>::type, Clauses...>(
-		(typename AsClause<Clause>::type)(std::forward<Clause>(clause)),
-		std::forward<Clauses>(clauses)...);
+auto clause(Section&& s) {
+	return ClauseWildcard();
 }
 
-template<typename Clauses...>
-auto pattern(const Section& s, Clauses&&... clauses) {
-	return pattern(ClauseWildcard(),std::forward<Clauses>(clauses)...);
+template<typename Clause>
+auto clause(Clause&& c, typename std::enable_if_t<IsClause<Clause>::value>* enabler = nullptr) {
+	return std::forward<Clause>(c);
+}
+
+template<typename Clause>
+auto clause(Clause&& c, typename std::enable_if_t<!IsClause<Clause>::value>* enabler = nullptr) {
+	return ClauseConstant<std::decay_t<Clause>>(std::forward<Clause>(c));
+}
+
+template<typename Clause, typename... Clauses>
+auto pattern(Clause&& c, Clauses&&... clauses) {
+	return Pattern(clause(c), pattern(clauses...));
+}
+
+template<typename Clause>
+auto pattern(Clause&& c) {
+	return Pattern<decltype(clause(c))>(clause(c));
 }
 
 
