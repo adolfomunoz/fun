@@ -43,6 +43,7 @@ class Function_<F,Classes, Ret> : public FunctionBase<F> {
 public:
 	using FunctionBase<F>::FunctionBase;
 	Evaluator<Ret> evaluator;
+	Ret evaluate() const { return evaluator.lazy(this->f); }
 	operator Ret() const { return evaluator.lazy(this->f); }
 };
 
@@ -56,6 +57,7 @@ public:
 
 	static_assert(class_check<Classes,I,Ret>::value, "Generic type is not an instance of class.");
 	Evaluator<Ret> evaluator;
+	Ret evaluate() const { return evaluator.lazy(this->f); }
 	operator Ret() const { return evaluator.lazy(this->f); }
 };
 

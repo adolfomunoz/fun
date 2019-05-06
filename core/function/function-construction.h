@@ -83,5 +83,10 @@ template<typename F>
 auto function(F&& f) {
 	return detail::function_deduction<std::remove_cvref_t<F>>::generate(std::forward<F>(f));
 }
+
+template<typename V>
+auto value(V&& v) {
+	return function<std::decay_t<V>>([v = std::forward<V>(v)] () { return v; });
+}
 	
 };
